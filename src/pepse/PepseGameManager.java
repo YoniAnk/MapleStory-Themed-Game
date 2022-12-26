@@ -74,6 +74,7 @@ public class PepseGameManager extends GameManager {
     private void skyCreator(Vector2 windowDimensions) {
         GameObject sky = Sky.create(gameObjects(), windowDimensions, Layer.BACKGROUND);
         GameObject night = Night.create(gameObjects(), Layer.FOREGROUND, windowDimensions, NIGHT_CYCLE_LEN);
+        GameObject sun = Sun.create(gameObjects(), Layer.BACKGROUND, windowDimensions, SUNSET_CYCLE);
     }
 
 

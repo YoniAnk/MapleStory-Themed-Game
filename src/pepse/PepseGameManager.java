@@ -16,7 +16,7 @@ public class PepseGameManager extends GameManager {
     /************ Game Settings Constants ***************/
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 700;
-    private static final int BOARD_WIDTH = 900;
+    private static final int BOARD_WIDTH = 1005;
 
     /************** Terrain properties ***************/
     public static final int TERRAIN_SEED = 1000;

@@ -16,6 +16,8 @@ public class Terrain {
     private double TERRAIN_HEIGHT_RATIO = 0.666;
     private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
 
+    private static final int TERRAIN_DEPTH = 20;  //TODO: check what it is 
+
 
     /*************** Variables *****************/
     private final GameObjectCollection gameObjects;

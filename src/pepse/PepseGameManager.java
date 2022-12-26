@@ -34,6 +34,15 @@ public class PepseGameManager extends GameManager {
         super(windowTitle,windowDimensions);
     }
 
+
+    /**
+     * Initializes the PepseGameManager
+     *
+     * @param imageReader the image reader to use for loading images
+     * @param soundReader the sound reader to use for loading sounds
+     * @param inputListener the user input listener to use for handling user input
+     * @param windowController the window controller to use for controlling the game window
+     */
     @Override
     public void initializeGame(ImageReader imageReader, SoundReader soundReader,
                                UserInputListener inputListener, WindowController windowController) {

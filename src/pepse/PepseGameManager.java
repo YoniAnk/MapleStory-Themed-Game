@@ -10,6 +10,7 @@ import danogl.gui.WindowController;
 import danogl.util.Vector2;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.daynight.Night;
 
 public class PepseGameManager extends GameManager {
 
@@ -17,6 +18,9 @@ public class PepseGameManager extends GameManager {
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 700;
     private static final int BOARD_WIDTH = 1005;
+
+    private static final float NIGHT_CYCLE_LEN = 10;
+
 
     /************** Terrain properties ***************/
     public static final int TERRAIN_SEED = 1000;
@@ -48,7 +52,7 @@ public class PepseGameManager extends GameManager {
                                UserInputListener inputListener, WindowController windowController) {
 
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
-        skyCreator(windowController);
+        skyCreator(windowController.getWindowDimensions());
         terrainCreator(windowController);
     }
     /**
@@ -65,10 +69,11 @@ public class PepseGameManager extends GameManager {
     /**
      * Creates a new sky and adds it to the list of game objects.
      *
-     * @param windowController the window controller that controls the game window
+     * @param windowDimensions the windowDimensions of game
      */
-    private void skyCreator(WindowController windowController) {
-        GameObject sky = Sky.create(gameObjects(), windowController.getWindowDimensions(), Layer.BACKGROUND);
+    private void skyCreator(Vector2 windowDimensions) {
+        GameObject sky = Sky.create(gameObjects(), windowDimensions, Layer.BACKGROUND);
+        GameObject night = Night.create(gameObjects(), Layer.FOREGROUND, windowDimensions, NIGHT_CYCLE_LEN);
     }
 
 

@@ -6,7 +6,7 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
 public class Block extends GameObject {
-
+    private static final String BLOCK_TAG = "block";
     public static final int SIZE = 30;
 
     /**
@@ -21,6 +21,7 @@ public class Block extends GameObject {
         super(topLeftCorner, Vector2.ONES.mult(SIZE), renderable);
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
         physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
+        setTag(BLOCK_TAG);
     }
 
 }

@@ -16,7 +16,7 @@ public class Terrain {
     private static final double TERRAIN_HEIGHT_RATIO = 0.666;
     private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
 
-    private static final int TERRAIN_DEPTH = 20;  //TODO: check what it is
+    private static final int TERRAIN_DEPTH = 20;  //TODO: check what is it
 
 
     /*************** Variables *****************/
@@ -41,7 +41,8 @@ public class Terrain {
         int numBlocks = (int) (windowsDimensions.x() / blockSize); // number of blocks in the terrain
 
         double noiseValue = this.noiseGenerator.noise((int) (x / blockSize), numBlocks, frequency);
-        int terrainHeight = (int) (noiseValue * windowsDimensions.y() / 2.0f); // scale the noise value to the desired range
+        // scale the noise value to the desired range
+        int terrainHeight = (int) (noiseValue * windowsDimensions.y() / 2.0f);
         return (this.groundHeightAtX0 - terrainHeight);
     }
 

@@ -11,6 +11,7 @@ import danogl.util.Vector2;
 import pepse.world.Sky;
 import pepse.world.Terrain;
 import pepse.world.daynight.Night;
+import pepse.world.daynight.Sun;
 
 public class PepseGameManager extends GameManager {
 
@@ -20,7 +21,7 @@ public class PepseGameManager extends GameManager {
     private static final int BOARD_WIDTH = 1005;
 
     private static final float NIGHT_CYCLE_LEN = 10;
-
+    private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
 
     /************** Terrain properties ***************/
     public static final int TERRAIN_SEED = 1000;

@@ -14,25 +14,32 @@ import java.util.Random;
 
 public class Tree {
 
-    private static final int MINIMUM_TRUNK_HEIGHT = Block.SIZE * 6;
-    private static final int MAXIMUM_TRUNK_HEIGHT = Block.SIZE * 12;
-    private static final int LEAVES_SQUARE_SIZE = Block.SIZE * 5;
-
-    public static final Color BASE_TRUNK_COLOR = new Color(100, 50, 20);
-    public static final Color BASE_LEAF_COLOR = new Color(50, 200, 30);
-
+    /*********** General ***********/
     private static final float ODDS_TO_PLANT_TREE = 0.2f;
     private static final int RANDOM_MAX_BOUND = 100;
     private static final int THRESHOLD = (int) (RANDOM_MAX_BOUND * ODDS_TO_PLANT_TREE);
 
+    /*********** Trunk ***********/
+    public static final String TRUNK_TAG = "trunk";
+    private static final int MINIMUM_TRUNK_HEIGHT = Block.SIZE * 6;
+    private static final int MAXIMUM_TRUNK_HEIGHT = Block.SIZE * 12;
+    public static final Color BASE_TRUNK_COLOR = new Color(100, 50, 20);
+
+    /*********** Leaves ***********/
+    public static final Color BASE_LEAF_COLOR = new Color(50, 200, 30);
+    private static final int LEAVES_SQUARE_SIZE = Block.SIZE * 5;
+    private static final int FADEOUT_TIME = 8;
+    private static final float LEAF_FALLING_SPEED = 80;
+
 
     public static void Create(GameObjectCollection gameObjects, Vector2 groundPos, int layer, int seed) {
         // Create the trunk
-        float trunkHeight = getRandomTruckHeight(seed, (int)groundPos.x());
+        float trunkHeight = getRandomTruckHeight(seed, (int) groundPos.x());
         for (float curY = groundPos.y(); curY >= groundPos.y() - trunkHeight; curY -= Block.SIZE) {
             Renderable img = new RectangleRenderable(ColorSupplier.approximateColor(BASE_TRUNK_COLOR));
-            Block block = new Block(new Vector2(groundPos.x(), curY), img);
-            gameObjects.addGameObject(block, layer);
+            Block trunk = new Block(new Vector2(groundPos.x(), curY), img);
+            trunk.setTag(TRUNK_TAG);
+            gameObjects.addGameObject(trunk, layer);
         }
 
         // Create the leaves
@@ -42,24 +49,43 @@ public class Tree {
         for (float x = startX; x < endX; x += Block.SIZE) {
             for (float y = startY; y < endY; y += Block.SIZE) {
                 Renderable img = new RectangleRenderable(ColorSupplier.approximateColor(BASE_LEAF_COLOR));
-                Block leaf = new Block(new Vector2(x, y), img);
+                Leaf leaf = new Leaf(new Vector2(x, y), img);
                 gameObjects.addGameObject(leaf, layer);
-                applyLeafMoover(leaf);
+                applyWind(leaf);
                 applyLeafDropper(leaf);
             }
         }
 
     }
 
-    public static void applyLeafDropper(Block leaf) {
-        // TODO
+    public static void applyLeafDropper(Leaf leaf) {
+        // TODO fix fadeOut
+        Vector2 leaf_original_position = leaf.getCenter();
+        int lifeTime = new Random().nextInt(30) + 12;
+        int die_time = new Random().nextInt(15) + 10;
+
+        Runnable returnToLife = () -> {
+            //leaf.renderer().fadeIn(1);
+            leaf.setVelocity(Vector2.ZERO);
+            leaf.renderer().setOpaqueness(1f);
+            leaf.setCenter(leaf_original_position);
+        };
+
+        Runnable startFalling = () -> {
+            //leaf.renderer().fadeOut(FADEOUT_TIME);
+            leaf.transform().setVelocity(0, LEAF_FALLING_SPEED);
+            new ScheduledTask(leaf, die_time, false, returnToLife);
+        };
+
+        new ScheduledTask(leaf, lifeTime, true, startFalling);
     }
 
     /**
      * Activates the effect of wind on the leaf
-     * @param leaf  the leaf to activate the effect
+     *
+     * @param leaf the leaf to activate the effect
      */
-    public static void applyLeafMoover(Block leaf) {
+    public static void applyWind(Leaf leaf) {
         // TODO: change to constants
         int cycleLength = 2;
 
@@ -91,9 +117,10 @@ public class Tree {
 
     /**
      * Randomize the decision of planting a tree
-     * @param seed  the seed for the random
-     * @param x     the x position of the tree
-     * @return      true if should plant a tree, else false
+     *
+     * @param seed the seed for the random
+     * @param x    the x position of the tree
+     * @return true if should plant a tree, else false
      */
     public static boolean shouldPlantTree(int seed, int x) {
         //TODO: use seed and x position
@@ -102,9 +129,10 @@ public class Tree {
 
     /**
      * Randomize the tree's trunk height between MINIMUM_TRUNK_HEIGHT and MAXIMUM_TRUNK_HEIGHT
-     * @param seed  the seed for the random
-     * @param x     the x position of the tree
-     * @return      the height of the tree
+     *
+     * @param seed the seed for the random
+     * @param x    the x position of the tree
+     * @return the height of the tree
      */
     public static int getRandomTruckHeight(int seed, int x) {
         //TODO: use seed and x position

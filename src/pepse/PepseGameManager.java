@@ -14,6 +14,7 @@ import pepse.world.Terrain;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
+import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
 
 import java.awt.*;
@@ -27,12 +28,19 @@ public class PepseGameManager extends GameManager {
     private static final int BOARD_WIDTH = 1005;
 
     /************** day/night properties ***************/
+    public static final int SUN_LAYER = Layer.BACKGROUND;
+    public static final int SKY_LAYER = Layer.BACKGROUND;
+    public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
     private static final float NIGHT_CYCLE_LEN = 36;
     private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);
 
+    /************** Trees properties ***************/
+    public static final int LEAVES_LAYER = 1;
+
     /************** Terrain properties ***************/
+    public static final int TERRAIN_LAYER = Layer.STATIC_OBJECTS;
     public static final int RANDOM_SEED = 1234567;
     private Vector2 windowDimensions;
     private Terrain terrain;
@@ -67,13 +75,15 @@ public class PepseGameManager extends GameManager {
         skyCreator();
         terrainCreator(0, (int) windowDimensions.x());
         treesCreator(0, (int) windowDimensions.x());
+        gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
+
     }
 
     /**
      * Creates a new terrain and adds it to the list of game objects.
      */
     private void terrainCreator(int minX, int maxX) {
-        this.terrain = new Terrain(this.gameObjects(), Layer.STATIC_OBJECTS, windowDimensions, RANDOM_SEED);
+        this.terrain = new Terrain(this.gameObjects(), TERRAIN_LAYER, windowDimensions, RANDOM_SEED);
         terrain.createInRange(minX, maxX);
     }
 
@@ -81,10 +91,10 @@ public class PepseGameManager extends GameManager {
      * Creates a new sky and adds it to the list of game objects.
      */
     private void skyCreator() {
-        GameObject sky = Sky.create(gameObjects(), windowDimensions, Layer.BACKGROUND);
-        GameObject night = Night.create(gameObjects(), Layer.FOREGROUND, windowDimensions, NIGHT_CYCLE_LEN);
-        GameObject sun = Sun.create(gameObjects(), Layer.BACKGROUND, windowDimensions, SUNSET_CYCLE);
-        GameObject sunHalo = SunHalo.create(gameObjects(), Layer.BACKGROUND, sun, HALO_COLOR);
+        GameObject sky = Sky.create(gameObjects(), windowDimensions, SKY_LAYER);
+        GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
+        GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);
+        GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
     }
 
 
@@ -92,7 +102,7 @@ public class PepseGameManager extends GameManager {
         for (int curX = minX; curX <= maxX; curX += 2 * Block.SIZE) {
             if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
                 float curY = (float) Math.floor(terrain.groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
-                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), Layer.STATIC_OBJECTS, RANDOM_SEED);
+                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), LEAVES_LAYER, RANDOM_SEED);
             }
         }
     }

@@ -1,13 +1,15 @@
-package pepse.world;
+package pepse.world.trees;
 
 import danogl.GameObject;
+import danogl.collisions.Collision;
 import danogl.components.GameObjectPhysics;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.world.Block;
+import pepse.world.Terrain;
 
-public class Block extends GameObject {
-    public static final String BLOCK_TAG = "block";
-    public static final int SIZE = 30;
+public class Leaf extends GameObject {
+    public static final String LEAF_TAG = "leaf";
 
     /**
      * Construct a new GameObject instance.
@@ -17,11 +19,14 @@ public class Block extends GameObject {
      * @param renderable    The renderable representing the object. Can be null, in which case
      *                      the GameObject will not be rendered.
      */
-    public Block(Vector2 topLeftCorner, Renderable renderable) {
-        super(topLeftCorner, Vector2.ONES.mult(SIZE), renderable);
+    public Leaf(Vector2 topLeftCorner, Renderable renderable) {
+        super(topLeftCorner, new Vector2(Block.SIZE, Block.SIZE), renderable);
         physics().preventIntersectionsFromDirection(Vector2.ZERO);
-        physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
-        setTag(BLOCK_TAG);
+        setTag(LEAF_TAG);
     }
 
+    @Override
+    public boolean shouldCollideWith(GameObject other) {
+        return super.shouldCollideWith(other) && !other.getTag().equals(LEAF_TAG);
+    }
 }

@@ -13,6 +13,7 @@ import java.awt.*;
 public class Terrain {
 
     /********** Terrain Constants  ***************/
+    public static final String TERRAIN_TAG = "terrain";
     private static final double TERRAIN_HEIGHT_RATIO = 0.666;
     private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
 
@@ -53,6 +54,7 @@ public class Terrain {
             for (int curY =(int)this.windowsDimensions.y(); curY >= (int)floorHeight; curY -= Block.SIZE) {
                 Renderable renderable = new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
                 Block block = new Block(new Vector2(curX, curY), renderable);
+                block.setTag(TERRAIN_TAG);
                 this.gameObjects.addGameObject(block, groundLayer);
             }
         }

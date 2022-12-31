@@ -53,7 +53,7 @@ public class Terrain {
             for (int curY =(int)this.windowsDimensions.y(); curY >= (int)floorHeight; curY -= Block.SIZE) {
                 Renderable renderable = new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
                 Block block = new Block(new Vector2(curX, curY), renderable);
-                this.gameObjects.addGameObject(block);
+                this.gameObjects.addGameObject(block, groundLayer);
             }
         }
     }

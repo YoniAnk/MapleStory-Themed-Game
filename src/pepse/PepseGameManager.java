@@ -23,6 +23,8 @@ public class PepseGameManager extends GameManager {
     private static final int BOARD_HEIGHT = 700;
     private static final int BOARD_WIDTH = 1005;
 
+    /************** day/night properties ***************/
+
     private static final float NIGHT_CYCLE_LEN = 10;
     private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);

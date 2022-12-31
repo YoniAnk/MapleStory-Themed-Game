@@ -17,7 +17,8 @@ public class SunHalo {
         Vector2 haloRadius = new Vector2(HALO_SIZE + Sun.SUN_SIZE, HALO_SIZE + Sun.SUN_SIZE);
         GameObject sunHalo = new GameObject(Vector2.ZERO, haloRadius, haloRenderable);
         sunHalo.setTag(SUN_HALO_TAG);
-        Component haloMover = (deltaTime) -> { sunHalo.setCenter(sun.getCenter());};
+
+        Component haloMover = (deltaTime) -> sunHalo.setCenter(sun.getCenter());
         sunHalo.addComponent(haloMover);
         gameObjects.addGameObject(sunHalo, layer);
         return sunHalo;

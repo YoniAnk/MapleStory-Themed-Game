@@ -37,6 +37,7 @@ public class PepseGameManager extends GameManager {
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);
 
     /************** Trees properties ***************/
+    public static final int TRUNK_LAYER = Layer.STATIC_OBJECTS;
     public static final int LEAVES_LAYER = 1;
 
     /************** Terrain properties ***************/
@@ -102,7 +103,8 @@ public class PepseGameManager extends GameManager {
         for (int curX = minX; curX <= maxX; curX += 2 * Block.SIZE) {
             if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
                 float curY = (float) Math.floor(terrain.groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
-                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), LEAVES_LAYER, RANDOM_SEED);
+                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), TRUNK_LAYER, LEAVES_LAYER,
+                        RANDOM_SEED);
             }
         }
     }

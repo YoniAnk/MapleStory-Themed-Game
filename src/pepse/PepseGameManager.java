@@ -98,13 +98,12 @@ public class PepseGameManager extends GameManager {
         GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
     }
 
-
     private void treesCreator(int minX, int maxX) {
         for (int curX = minX; curX <= maxX; curX += 2 * Block.SIZE) {
             if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
                 float curY = (float) Math.floor(terrain.groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
-                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), TRUNK_LAYER, LEAVES_LAYER,
-                        RANDOM_SEED);
+                Vector2 position = new Vector2(curX, curY - Block.SIZE);
+                Tree.Create(gameObjects(), position, TRUNK_LAYER, LEAVES_LAYER, RANDOM_SEED);
             }
         }
     }

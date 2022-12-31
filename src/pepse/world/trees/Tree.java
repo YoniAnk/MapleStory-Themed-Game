@@ -10,6 +10,7 @@ import pepse.util.ColorSupplier;
 import pepse.world.Block;
 
 import java.awt.*;
+import java.util.Objects;
 import java.util.Random;
 
 public class Tree {
@@ -41,10 +42,11 @@ public class Tree {
 
     /**
      * Generate the trunk of a tree
-     * @param gameObjects   the gameObjects collection to add the trunk
-     * @param groundPos     the ground position to make the trunk
-     * @param trunkLayer    the layer to put the trunk in
-     * @param trunkHeight   the height of the trunk
+     *
+     * @param gameObjects the gameObjects collection to add the trunk
+     * @param groundPos   the ground position to make the trunk
+     * @param trunkLayer  the layer to put the trunk in
+     * @param trunkHeight the height of the trunk
      */
     private static void generateTrunk(GameObjectCollection gameObjects, Vector2 groundPos, int trunkLayer, float trunkHeight) {
         for (float curY = groundPos.y(); curY >= groundPos.y() - trunkHeight; curY -= Block.SIZE) {
@@ -57,10 +59,11 @@ public class Tree {
 
     /**
      * Generate the leaves around the top of the trunk of the tree
-     * @param gameObjects   the gameObjects collection to add the trunk
-     * @param groundPos     the ground position to make the trunk
-     * @param leavesLayer   the layer to put the leaves in
-     * @param trunkHeight   the height of the trunk
+     *
+     * @param gameObjects the gameObjects collection to add the trunk
+     * @param groundPos   the ground position to make the trunk
+     * @param leavesLayer the layer to put the leaves in
+     * @param trunkHeight the height of the trunk
      */
     private static void generateLeaves(GameObjectCollection gameObjects, Vector2 groundPos, int leavesLayer, float trunkHeight) {
         Vector2 center = groundPos.subtract(new Vector2(-Block.SIZE / 2f, trunkHeight));
@@ -77,8 +80,16 @@ public class Tree {
         }
     }
 
+    /**
+     * Activates the ScheduledTask for leaf dropping
+     *
+     * @param leaf the leaf to drop
+     */
     public static void applyLeafDropper(Leaf leaf) {
-        // TODO fix fadeOut + make the leaf layer change when drops so collision check will be more efficient
+        // TODO:
+        //      1.fix fadeOut
+        //      2. make the leaf layer change when drops so collision check will be more efficient
+        //      3. add seed to the random
         Vector2 leaf_original_position = leaf.getCenter();
         int lifeTime = new Random().nextInt(40) + 15;
         int die_time = new Random().nextInt(15) + 10;
@@ -142,8 +153,7 @@ public class Tree {
      * @return true if should plant a tree, else false
      */
     public static boolean shouldPlantTree(int seed, int x) {
-        //TODO: use seed and x position
-        return new Random().nextInt(RANDOM_MAX_BOUND) < THRESHOLD;
+        return new Random(Objects.hash(seed, x)).nextInt(RANDOM_MAX_BOUND) < THRESHOLD;
     }
 
     /**
@@ -154,8 +164,8 @@ public class Tree {
      * @return the height of the tree
      */
     public static int getRandomTruckHeight(int seed, int x) {
-        //TODO: use seed and x position
-        return new Random().nextInt(MAXIMUM_TRUNK_HEIGHT - MINIMUM_TRUNK_HEIGHT) + MINIMUM_TRUNK_HEIGHT;
+        return new Random(Objects.hash(seed, x)).nextInt(MAXIMUM_TRUNK_HEIGHT - MINIMUM_TRUNK_HEIGHT) +
+                MINIMUM_TRUNK_HEIGHT;
     }
 
 }

@@ -13,7 +13,7 @@ import java.awt.*;
 public class Sun {
     private static final String SUN_TAG = "sun";
     private static final Color SUN_COLOR = Color.YELLOW;
-    private static final float SUN_SIZE = 150;
+    public static final float SUN_SIZE = 150;
     private static final float SUN_ROTATION_RADIUS = 550;
     private static final float INIT_SUN_ANGLE = 270;
     private static final float END_SUN_ANGLE = 630;

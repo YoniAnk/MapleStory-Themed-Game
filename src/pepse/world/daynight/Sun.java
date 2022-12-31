@@ -23,7 +23,7 @@ public class Sun {
         GameObject sun = new GameObject(Vector2.ZERO, new Vector2(SUN_SIZE, SUN_SIZE), sunRenderable);
         sun.setTag(SUN_TAG);
         gameObjects.addGameObject(sun, layer);
-        Vector2 circleCenter = new Vector2(windowDimensions.x() / 2, windowDimensions.y());
+        Vector2 circleCenter = new Vector2(windowDimensions.x() / 2, windowDimensions.y()); // TODO: change to screen center (to stay center if player moves)
 
         SunMover mover = angle -> {
             float x = (float) (circleCenter.x() + SUN_ROTATION_RADIUS * Math.cos(Math.toRadians(angle)));

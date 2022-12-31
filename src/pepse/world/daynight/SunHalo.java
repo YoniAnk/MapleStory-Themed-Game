@@ -10,7 +10,7 @@ import java.awt.*;
 
 public class SunHalo {
     private static final String SUN_HALO_TAG = "sun_halo";
-    private static final float HALO_SIZE = 200;
+    private static final float HALO_SIZE = 250;
 
     public static GameObject create(GameObjectCollection gameObjects, int layer, GameObject sun, Color color) {
         Renderable haloRenderable = new OvalRenderable(color);

@@ -30,7 +30,7 @@ public class Tree {
     public static final Color BASE_LEAF_COLOR = new Color(50, 200, 30);
     private static final int LEAVES_SQUARE_SIZE = Block.SIZE * 5;
     private static final int FADEOUT_TIME = 8;
-    private static final float LEAF_FALLING_SPEED = 80;
+    private static final float LEAF_FALLING_SPEED = 70;
 
 
     public static void Create(GameObjectCollection gameObjects, Vector2 groundPos, int trunkLayer,
@@ -89,16 +89,16 @@ public class Tree {
         // TODO:
         //      1.fix fadeOut
         //      2. make the leaf layer change when drops so collision check will be more efficient
-        //      3. add seed to the random
+        //      3. add seed to the random (check if actually needed)
         Vector2 leaf_original_position = leaf.getCenter();
-        int lifeTime = new Random().nextInt(40) + 15;
-        int die_time = new Random().nextInt(15) + 10;
+        int lifeTime = new Random().nextInt(60) + 5;
+        int die_time = new Random().nextInt(15) + 5;
 
         Runnable returnToLife = () -> {
-            //leaf.renderer().fadeIn(1);
-            leaf.setVelocity(Vector2.ZERO);
-            leaf.renderer().setOpaqueness(1f);
             leaf.setCenter(leaf_original_position);
+            //leaf.renderer().fadeIn(0.2f);
+            //leaf.renderer().setOpaqueness(1);
+            leaf.setVelocity(Vector2.ZERO);
         };
 
         Runnable startFalling = () -> {

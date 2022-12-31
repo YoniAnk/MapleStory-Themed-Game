@@ -48,6 +48,7 @@ public class Sun {
     interface SunMover {
         /**
          * Rotates the sun position
+         *
          * @param angle the angle to rotate
          */
         void rotate(float angle);

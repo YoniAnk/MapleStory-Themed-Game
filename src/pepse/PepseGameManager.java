@@ -7,11 +7,7 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
-import danogl.gui.rendering.Camera;
-import danogl.gui.rendering.RectangleRenderable;
-import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import pepse.util.ColorSupplier;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
@@ -21,6 +17,7 @@ import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Tree;
 
 import java.awt.*;
+import java.util.Random;
 
 public class PepseGameManager extends GameManager {
 
@@ -31,12 +28,12 @@ public class PepseGameManager extends GameManager {
 
     /************** day/night properties ***************/
 
-    private static final float NIGHT_CYCLE_LEN = 12;
+    private static final float NIGHT_CYCLE_LEN = 48;
     private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);
 
     /************** Terrain properties ***************/
-    public static final int TERRAIN_SEED = 1000;
+    public static final int RANDOM_SEED = 1000;
     private Vector2 windowDimensions;
     private Terrain terrain;
 
@@ -69,14 +66,14 @@ public class PepseGameManager extends GameManager {
         this.windowDimensions = windowController.getWindowDimensions();
         skyCreator();
         terrainCreator(0, (int) windowDimensions.x());
-        treesCreator(0, (int)windowDimensions.x());
+        treesCreator(0, (int) windowDimensions.x());
     }
 
     /**
      * Creates a new terrain and adds it to the list of game objects.
      */
     private void terrainCreator(int minX, int maxX) {
-        this.terrain = new Terrain(this.gameObjects(), Layer.STATIC_OBJECTS, windowDimensions, TERRAIN_SEED);
+        this.terrain = new Terrain(this.gameObjects(), Layer.STATIC_OBJECTS, windowDimensions, RANDOM_SEED);
         terrain.createInRange(minX, maxX);
     }
 
@@ -93,9 +90,9 @@ public class PepseGameManager extends GameManager {
 
     private void treesCreator(int minX, int maxX) {
         for (int curX = minX; curX <= maxX; curX += 2 * Block.SIZE) {
-            if (Tree.shouldPlantTree()) {
+            if (Tree.shouldPlantTree(RANDOM_SEED)) {
                 float curY = (float) Math.floor(terrain.groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
-                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), Layer.STATIC_OBJECTS);
+                Tree.Create(gameObjects(), new Vector2(curX, curY - Block.SIZE), Layer.STATIC_OBJECTS, RANDOM_SEED);
             }
         }
     }

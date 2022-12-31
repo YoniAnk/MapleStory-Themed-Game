@@ -6,7 +6,6 @@ import danogl.components.Transition;
 import danogl.gui.rendering.OvalRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
-import pepse.util.SunMover;
 
 import java.awt.*;
 
@@ -25,8 +24,14 @@ public class Sun {
         sun.setTag(SUN_TAG);
         gameObjects.addGameObject(sun, layer);
         Vector2 circleCenter = new Vector2(windowDimensions.x() / 2, windowDimensions.y());
-        SunMover mover = new SunMover(sun, circleCenter, SUN_ROTATION_RADIUS);
-        new Transition<>(sun, mover::move,
+
+        SunMover mover = angle -> {
+            float x = (float) (circleCenter.x() + SUN_ROTATION_RADIUS * Math.cos(Math.toRadians(angle)));
+            float y = (float) (circleCenter.y() + SUN_ROTATION_RADIUS * Math.sin(Math.toRadians(angle)));
+            sun.setCenter(new Vector2(x, y));
+        };
+
+        new Transition<>(sun, mover::rotate,
                 INIT_SUN_ANGLE,
                 END_SUN_ANGLE,
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
@@ -36,4 +41,15 @@ public class Sun {
     }
 
 
+    /**
+     * This interface is a FunctionalInterface that contains a function that rotates the sun
+     */
+    @FunctionalInterface
+    interface SunMover {
+        /**
+         * Rotates the sun position
+         * @param angle the angle to rotate
+         */
+        void rotate(float angle);
+    }
 }

@@ -11,6 +11,7 @@ import danogl.util.Vector2;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.daynight.Moon;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -29,6 +30,7 @@ public class PepseGameManager extends GameManager {
 
     /************** day/night properties ***************/
     public static final int SUN_LAYER = Layer.BACKGROUND;
+    public static final int MOON_LAYER = Layer.BACKGROUND;
     public static final int SKY_LAYER = Layer.BACKGROUND;
     public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
@@ -96,6 +98,7 @@ public class PepseGameManager extends GameManager {
         GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);
         GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
+        GameObject moon = Moon.create(gameObjects(), MOON_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
     }
 
     private void treesCreator(int minX, int maxX) {

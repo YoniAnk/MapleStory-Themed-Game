@@ -13,7 +13,8 @@ public class Sun {
     private static final String SUN_TAG = "sun";
     private static final Color SUN_COLOR = Color.YELLOW;
     public static final float SUN_SIZE = 150;
-    private static final float SUN_ROTATION_RADIUS = 550;
+    private static final float SUN_SMALL_ROTATION_RADIUS = 550;
+    private static final float SUN_LARGE_ROTATION_RADIUS = 650;
     private static final float INIT_SUN_ANGLE = 270;
     private static final float END_SUN_ANGLE = 630;
 
@@ -26,8 +27,8 @@ public class Sun {
         Vector2 circleCenter = new Vector2(windowDimensions.x() / 2, windowDimensions.y()); // TODO: change to screen center (to stay center if player moves)
 
         SunMover mover = angle -> {
-            float x = (float) (circleCenter.x() + SUN_ROTATION_RADIUS * Math.cos(Math.toRadians(angle)));
-            float y = (float) (circleCenter.y() + SUN_ROTATION_RADIUS * Math.sin(Math.toRadians(angle)));
+            float x = (float) (circleCenter.x() + SUN_LARGE_ROTATION_RADIUS * Math.cos(Math.toRadians(angle)));
+            float y = (float) (circleCenter.y() + SUN_SMALL_ROTATION_RADIUS * Math.sin(Math.toRadians(angle)));
             sun.setCenter(new Vector2(x, y));
         };
 

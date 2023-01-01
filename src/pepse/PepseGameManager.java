@@ -34,7 +34,7 @@ public class PepseGameManager extends GameManager {
     public static final int SKY_LAYER = Layer.BACKGROUND;
     public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
-    private static final float NIGHT_CYCLE_LEN = 36;
+    private static final float NIGHT_CYCLE_LEN = 12;
     private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);
 
@@ -98,7 +98,7 @@ public class PepseGameManager extends GameManager {
         GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);
         GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
-        GameObject moon = Moon.create(gameObjects(), MOON_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
+        GameObject moon = Moon.create(gameObjects(), MOON_LAYER, windowDimensions, SUNSET_CYCLE);
     }
 
     private void treesCreator(int minX, int maxX) {

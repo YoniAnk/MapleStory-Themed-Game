@@ -15,8 +15,8 @@ public class Moon {
     private static final Color MOON_COLOR = Color.LIGHT_GRAY;
     public static final float MOON_SIZE = 150;
     private static final float MOON_ROTATION_RADIUS = 550;
-    private static final float INIT_MOON_ANGLE = 0;
-    private static final float END_MOON_ANGLE = 360;
+    private static final float INIT_MOON_ANGLE = 90;
+    private static final float END_MOON_ANGLE = 470;
 
     public static GameObject create(GameObjectCollection gameObjects, int layer, Vector2 windowDimensions,
                                     float cycleLength) {

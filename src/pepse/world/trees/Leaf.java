@@ -6,7 +6,6 @@ import danogl.components.GameObjectPhysics;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.world.Block;
-import pepse.world.Terrain;
 
 public class Leaf extends GameObject {
     public static final String LEAF_TAG = "leaf";

@@ -87,9 +87,10 @@ public class Tree {
      */
     public static void applyLeafDropper(Leaf leaf) {
         // TODO:
-        //      1.fix fadeOut
+        //      1. fix fadeOut
         //      2. make the leaf layer change when drops so collision check will be more efficient
-        //      3. add seed to the random (check if actually needed)
+        //      3. end the fall on hit (save transition in Leaf and delete on collision)
+
         Vector2 leaf_original_position = leaf.getCenter();
         int lifeTime = new Random().nextInt(60) + 5;
         int die_time = new Random().nextInt(15) + 5;
@@ -138,11 +139,11 @@ public class Tree {
             new Transition<>(leaf, leaf::setDimensions,
                     startSize,
                     endSize,
-                    Transition.CUBIC_INTERPOLATOR_VECTOR,
+                    Transition.LINEAR_INTERPOLATOR_VECTOR,
                     cycleLength,
                     Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
         };
-        new ScheduledTask(leaf, new Random().nextInt(3), false, run);
+        new ScheduledTask(leaf, new Random().nextInt(3), false, run);   //TODO: fix random to use seed(?)
     }
 
     /**

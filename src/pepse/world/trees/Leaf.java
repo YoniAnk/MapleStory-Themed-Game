@@ -12,7 +12,7 @@ import pepse.world.Terrain;
 import java.util.Random;
 
 public class Leaf extends GameObject {
-    private static final int FADEOUT_TIME = 6;
+    private static final int FADEOUT_TIME = 4;
     public static final String LEAF_TAG = "leaf";
     private static final float LEAF_FALLING_SPEED = 70;
 
@@ -32,6 +32,7 @@ public class Leaf extends GameObject {
      */
     public Leaf(Vector2 topLeftCorner, Renderable renderable) {
         super(topLeftCorner, new Vector2(Block.SIZE, Block.SIZE), renderable);
+        this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
         setTag(LEAF_TAG);
         this.leaf_original_position = topLeftCorner;
         applyLeafDropper();
@@ -51,6 +52,7 @@ public class Leaf extends GameObject {
         super.onCollisionEnter(other, collision);
         if (horizontalTransition != null && other.getTag().equals(Terrain.TERRAIN_TAG))
             new ScheduledTask(this, 0.01f, false, this::stopLeaf);
+            return;
     }
 
     private void startFalling() {
@@ -116,6 +118,7 @@ public class Leaf extends GameObject {
                     cycleLength,
                     Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
         };
-        new ScheduledTask(this, new Random().nextInt(3), false, run);   // TODO: fix random to use seed(?)
+        float timeToStart = new Random().nextFloat() * 2;
+        new ScheduledTask(this, timeToStart, false, run);   // TODO: fix random to use seed(?)
     }
 }

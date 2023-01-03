@@ -48,14 +48,14 @@ public class Terrain {
     }
 
     public void createInRange(int minX, int maxX) {
-
         for (int curX = minX; curX < maxX; curX += Block.SIZE) {
-            double floorHeight = Math.floor(groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
-            for (int curY =(int)this.windowsDimensions.y(); curY >= (int)floorHeight; curY -= Block.SIZE) {
+            float curY = (float) Math.floor(groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
+            for (int i = 0; i < TERRAIN_DEPTH; ++i) {
                 Renderable renderable = new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
                 Block block = new Block(new Vector2(curX, curY), renderable);
                 block.setTag(TERRAIN_TAG);
                 this.gameObjects.addGameObject(block, groundLayer);
+                curY += Block.SIZE;
             }
         }
     }

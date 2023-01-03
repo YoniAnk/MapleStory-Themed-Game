@@ -7,7 +7,10 @@ import danogl.gui.ImageReader;
 import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
+import danogl.gui.rendering.Camera;
+import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
@@ -19,6 +22,7 @@ import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
 
 import java.awt.*;
+import java.awt.image.renderable.RenderableImage;
 import java.util.Random;
 
 public class PepseGameManager extends GameManager {
@@ -27,6 +31,9 @@ public class PepseGameManager extends GameManager {
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 720;
     private static final int BOARD_WIDTH = 1005;
+
+    /************** avatar properties ***************/
+    public static final int AVATAR_LAYER = Layer.DEFAULT;
 
     /************** day/night properties ***************/
     public static final int SUN_LAYER = Layer.BACKGROUND;
@@ -79,6 +86,13 @@ public class PepseGameManager extends GameManager {
         terrainCreator(0, (int) windowDimensions.x());
         treesCreator(0, (int) windowDimensions.x());
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
+        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
+        createAvatar(inputListener, imageReader);
+    }
+
+    private void createAvatar(UserInputListener inputListener,ImageReader imageReader){
+        Avatar avatar = Avatar.create(gameObjects(), Layer.DEFAULT, windowDimensions.mult(0.5f), inputListener, imageReader);
+        setCamera(new Camera(avatar, Vector2.ZERO, windowDimensions, windowDimensions));
 
     }
 

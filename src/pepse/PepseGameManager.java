@@ -34,12 +34,12 @@ public class PepseGameManager extends GameManager {
     public static final int SKY_LAYER = Layer.BACKGROUND;
     public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
-    private static final float NIGHT_CYCLE_LEN = 12;
+    private static final float NIGHT_CYCLE_LEN = 48;
     private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);
 
     /************** Trees properties ***************/
-    public static final int TRUNK_LAYER = Layer.STATIC_OBJECTS;
+    public static final int TRUNK_LAYER = Layer.STATIC_OBJECTS + 1;
     public static final int LEAVES_LAYER = 1;
 
     /************** Terrain properties ***************/

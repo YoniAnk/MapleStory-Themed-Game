@@ -12,6 +12,7 @@ import pepse.world.Terrain;
 import java.util.Random;
 
 public class Leaf extends GameObject {
+    private static final int FADEOUT_TIME = 6;
     public static final String LEAF_TAG = "leaf";
     private static final float LEAF_FALLING_SPEED = 70;
 
@@ -31,9 +32,11 @@ public class Leaf extends GameObject {
      */
     public Leaf(Vector2 topLeftCorner, Renderable renderable) {
         super(topLeftCorner, new Vector2(Block.SIZE, Block.SIZE), renderable);
-        this.leaf_original_position = topLeftCorner;
-        physics().preventIntersectionsFromDirection(Vector2.ZERO);
         setTag(LEAF_TAG);
+        this.leaf_original_position = topLeftCorner;
+        applyLeafDropper();
+        applyWind();
+
     }
 
     private void stopLeaf() {
@@ -51,9 +54,9 @@ public class Leaf extends GameObject {
     }
 
     private void startFalling() {
+        this.renderer().fadeOut(FADEOUT_TIME);
         int die_time = new Random().nextInt(15) + 5;
         this.transform().setVelocityY(LEAF_FALLING_SPEED);
-
         this.horizontalTransition = new Transition<>(this, this.transform()::setVelocityX,
                 -20f,
                 20f,
@@ -64,12 +67,14 @@ public class Leaf extends GameObject {
     }
 
     private void returnToLife() {
+        new ScheduledTask(this, 0.01f, false, ()->this.renderer().setOpaqueness(1f));
         this.setTopLeftCorner(leaf_original_position);
         this.transform().setVelocity(0,0);
-        //applyLeafDropper();
+        applyLeafDropper();
+        applyWind();
     }
 
-    public void applyLeafDropper() {
+    private void applyLeafDropper() {
         // TODO:
         //      1. fix fadeOut
         //      2. make the leaf layer change when drops so collision check will be more efficient
@@ -82,7 +87,7 @@ public class Leaf extends GameObject {
     /**
      * Activates the effect of wind on the leaf
      */
-    public void applyWind() {
+    private void applyWind() {
         // TODO: change to constants
         int cycleLength = 2;
 

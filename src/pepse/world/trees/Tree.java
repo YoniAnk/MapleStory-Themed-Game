@@ -29,8 +29,6 @@ public class Tree {
     /*********** Leaves ***********/
     public static final Color BASE_LEAF_COLOR = new Color(50, 200, 30);
     private static final int LEAVES_SQUARE_SIZE = Block.SIZE * 5;
-    private static final int FADEOUT_TIME = 8;
-    private static final float LEAF_FALLING_SPEED = 70;
 
 
     public static void Create(GameObjectCollection gameObjects, Vector2 groundPos, int trunkLayer,
@@ -74,8 +72,6 @@ public class Tree {
                 Renderable img = new RectangleRenderable(ColorSupplier.approximateColor(BASE_LEAF_COLOR));
                 Leaf leaf = new Leaf(new Vector2(x, y), img);
                 gameObjects.addGameObject(leaf, leavesLayer);
-                leaf.applyWind();
-                leaf.applyLeafDropper();
             }
         }
     }

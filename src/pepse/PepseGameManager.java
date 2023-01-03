@@ -24,6 +24,7 @@ import pepse.world.trees.Tree;
 import java.awt.*;
 import java.awt.image.renderable.RenderableImage;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class PepseGameManager extends GameManager {
 
@@ -31,6 +32,7 @@ public class PepseGameManager extends GameManager {
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 720;
     private static final int BOARD_WIDTH = 1005;
+    public static final int RANDOM_SEED = 1234567;
 
     /************** avatar properties ***************/
     public static final int AVATAR_LAYER = Layer.DEFAULT;
@@ -51,11 +53,13 @@ public class PepseGameManager extends GameManager {
 
     /************** Terrain properties ***************/
     public static final int TERRAIN_LAYER = Layer.STATIC_OBJECTS;
-    public static final int RANDOM_SEED = 1234567;
+
+    /************ Class attributes ***********/
+    private float worldCenter;
     private Vector2 windowDimensions;
     private Terrain terrain;
+    private Avatar avatar;
 
-    /************ Class Functions ***********/
 
     /**
      * The constructor of Pepse Game Manager
@@ -82,26 +86,82 @@ public class PepseGameManager extends GameManager {
 
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
         this.windowDimensions = windowController.getWindowDimensions();
+        worldCenter = windowDimensions.x() / 2f;
+
+        int worldStartX = (int) (worldCenter - windowDimensions.x() * 1.5);
+        int worldEndX = (int) (worldCenter + windowDimensions.x() * 1.5);
+
         skyCreator();
-        terrainCreator(0, (int) windowDimensions.x());
-        treesCreator(0, (int) windowDimensions.x());
+        terrainCreator(worldStartX, worldEndX);
+        treesCreator(worldStartX, worldEndX);
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
     }
 
-    private void createAvatar(UserInputListener inputListener,ImageReader imageReader){
-        Avatar avatar = Avatar.create(gameObjects(), Layer.DEFAULT, windowDimensions.mult(0.5f), inputListener, imageReader);
-        setCamera(new Camera(avatar, Vector2.ZERO, windowDimensions, windowDimensions));
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+        float curPosition = avatar.getCenter().x();
 
+        if (curPosition > worldCenter + windowDimensions.x()) {
+            worldCenter = curPosition;
+            createWorld(Direction.right);
+            deleteWorld(Direction.left);
+        }
+
+        if (curPosition < worldCenter - windowDimensions.x()) {
+            worldCenter = curPosition;
+            createWorld(Direction.left);
+            deleteWorld(Direction.right);
+        }
+    }
+
+    private void createWorld(Direction world) {
+        int start, end;
+
+        if (world == Direction.right) {
+            start = (int) (worldCenter + windowDimensions.x() / 2);
+            end = (int) (start + windowDimensions.x());
+        } else {
+            end = (int) (worldCenter - windowDimensions.x() / 2);
+            start = (int) (end - windowDimensions.x());
+        }
+        this.terrain.createInRange(start, end);
+        this.treesCreator(start, end);
+
+    }
+
+    private void deleteObjectsInLayer(Direction world, int layer){
+        Consumer<GameObject> deleteTerrain = (object) -> {
+            if (world == Direction.left) {
+                if (worldCenter - (1.5 * windowDimensions.x()) > object.getTopLeftCorner().x())
+                    gameObjects().removeGameObject(object, layer);
+            } else if (worldCenter + (1.5 * windowDimensions.x()) < object.getTopLeftCorner().x())
+                gameObjects().removeGameObject(object, layer);
+        };
+
+    }
+
+    private void deleteWorld(Direction world) {
+
+        //gameObjects().objectsInLayer(TERRAIN_LAYER).forEach(deleteTerrain);
+    }
+
+
+
+    private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
+        avatar = Avatar.create(gameObjects(), Layer.DEFAULT, windowDimensions.mult(0.5f), inputListener, imageReader);
+        Vector2 distance = windowDimensions.mult(0.5f).subtract(avatar.getTopLeftCorner());
+        setCamera(new Camera(avatar, distance, windowDimensions, windowDimensions));
     }
 
     /**
      * Creates a new terrain and adds it to the list of game objects.
      */
-    private void terrainCreator(int minX, int maxX) {
+    private void terrainCreator(int start, int end) {
         this.terrain = new Terrain(this.gameObjects(), TERRAIN_LAYER, windowDimensions, RANDOM_SEED);
-        terrain.createInRange(minX, maxX);
+        terrain.createInRange(start, end);
     }
 
     /**
@@ -115,8 +175,8 @@ public class PepseGameManager extends GameManager {
         GameObject moon = Moon.create(gameObjects(), MOON_LAYER, windowDimensions, SUNSET_CYCLE);
     }
 
-    private void treesCreator(int minX, int maxX) {
-        for (int curX = minX; curX <= maxX; curX += 2 * Block.SIZE) {
+    private void treesCreator(int start, int end) {
+        for (int curX = start; curX <= end; curX += 2 * Block.SIZE) {
             if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
                 float curY = (float) Math.floor(terrain.groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
                 Vector2 position = new Vector2(curX, curY - Block.SIZE);
@@ -125,8 +185,9 @@ public class PepseGameManager extends GameManager {
         }
     }
 
-
     public static void main(String[] args) {
         new PepseGameManager(WINDOWS_NAME, new Vector2(BOARD_WIDTH, BOARD_HEIGHT)).run();
     }
+
+    private enum Direction {right, left}
 }

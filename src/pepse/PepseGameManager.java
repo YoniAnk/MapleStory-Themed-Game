@@ -31,7 +31,7 @@ public class PepseGameManager extends GameManager {
     /************ Game Settings Constants ***************/
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 720;
-    private static final int BOARD_WIDTH = 1005;
+    private static final int BOARD_WIDTH = 1200;
     public static final int RANDOM_SEED = 1234567;
 
     /************** avatar properties ***************/
@@ -127,6 +127,7 @@ public class PepseGameManager extends GameManager {
             end = (int) (worldCenter - windowDimensions.x() / 2);
             start = (int) (end - windowDimensions.x());
         }
+
         this.terrain.createInRange(start, end);
         this.treesCreator(start, end);
 
@@ -140,12 +141,13 @@ public class PepseGameManager extends GameManager {
             } else if (worldCenter + (1.5 * windowDimensions.x()) < object.getTopLeftCorner().x())
                 gameObjects().removeGameObject(object, layer);
         };
-
+        gameObjects().objectsInLayer(layer).forEach(deleteTerrain);
     }
 
     private void deleteWorld(Direction world) {
-
-        //gameObjects().objectsInLayer(TERRAIN_LAYER).forEach(deleteTerrain);
+        deleteObjectsInLayer(world, TERRAIN_LAYER);
+        deleteObjectsInLayer(world, TRUNK_LAYER);
+        deleteObjectsInLayer(world, LEAVES_LAYER);
     }
 
 

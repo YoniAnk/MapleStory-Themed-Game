@@ -74,77 +74,12 @@ public class Tree {
                 Renderable img = new RectangleRenderable(ColorSupplier.approximateColor(BASE_LEAF_COLOR));
                 Leaf leaf = new Leaf(new Vector2(x, y), img);
                 gameObjects.addGameObject(leaf, leavesLayer);
-                applyWind(leaf);
-                applyLeafDropper(leaf);
+                leaf.applyWind();
+                leaf.applyLeafDropper();
             }
         }
     }
 
-    /**
-     * Activates the ScheduledTask for leaf dropping
-     *
-     * @param leaf the leaf to drop
-     */
-    public static void applyLeafDropper(Leaf leaf) {
-        // TODO:
-        //      1. fix fadeOut
-        //      2. make the leaf layer change when drops so collision check will be more efficient
-        //      3. end the fall on hit (save transition in Leaf and delete on collision)
-
-        Vector2 leaf_original_position = leaf.getCenter();
-        int lifeTime = new Random().nextInt(60) + 5;
-        int die_time = new Random().nextInt(15) + 5;
-
-        Runnable returnToLife = () -> {
-            leaf.setCenter(leaf_original_position);
-            //leaf.renderer().fadeIn(0.2f);
-            //leaf.renderer().setOpaqueness(1);
-            leaf.setVelocity(Vector2.ZERO);
-        };
-
-        Runnable startFalling = () -> {
-            //leaf.renderer().fadeOut(FADEOUT_TIME);
-            leaf.transform().setVelocity(0, LEAF_FALLING_SPEED);
-            new ScheduledTask(leaf, die_time, false, returnToLife);
-        };
-
-        new ScheduledTask(leaf, lifeTime, true, startFalling);
-    }
-
-    /**
-     * Activates the effect of wind on the leaf
-     *
-     * @param leaf the leaf to activate the effect
-     */
-    public static void applyWind(Leaf leaf) {
-        // TODO: change to constants
-        int cycleLength = 2;
-
-        // The angle
-        float startAngle = -7;
-        float endAngle = 7;
-
-        // The size
-        Vector2 startSize = new Vector2(Block.SIZE * 1.2f, Block.SIZE * 0.9f);
-        Vector2 endSize = new Vector2(Block.SIZE, Block.SIZE + 1.1f);
-
-        Runnable run = () -> {
-            new Transition<>(leaf, leaf.renderer()::setRenderableAngle,
-                    startAngle,
-                    endAngle,
-                    Transition.LINEAR_INTERPOLATOR_FLOAT,
-                    cycleLength,
-                    Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
-
-            new Transition<>(leaf, leaf::setDimensions,
-                    startSize,
-                    endSize,
-                    Transition.LINEAR_INTERPOLATOR_VECTOR,
-                    cycleLength,
-                    Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
-        };
-        new ScheduledTask(leaf, new Random().nextInt(3), false, run);   //TODO: fix random to use seed(?)
-    }
 
     /**
      * Randomize the decision of planting a tree

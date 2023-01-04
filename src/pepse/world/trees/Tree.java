@@ -98,7 +98,5 @@ public class Tree {
     public static int getRandomTruckHeight(int seed, int x) {
         return new Random(Objects.hash(seed, x)).nextInt(MAXIMUM_TRUNK_HEIGHT - MINIMUM_TRUNK_HEIGHT) +
                 MINIMUM_TRUNK_HEIGHT;
-
     }
-
 }

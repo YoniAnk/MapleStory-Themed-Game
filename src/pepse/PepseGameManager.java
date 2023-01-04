@@ -2,13 +2,12 @@ package pepse;
 
 import danogl.GameManager;
 import danogl.GameObject;
+import danogl.collisions.GameObjectCollection;
 import danogl.collisions.Layer;
-import danogl.gui.ImageReader;
-import danogl.gui.SoundReader;
-import danogl.gui.UserInputListener;
-import danogl.gui.WindowController;
+import danogl.gui.*;
 import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
+import pepse.util.NumericEnergyCounter;
 import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
@@ -25,8 +24,8 @@ public class PepseGameManager extends GameManager {
 
     /************ Game Settings Constants ***************/
     public static final String WINDOWS_NAME = "Pepse Game";
-    private static final int BOARD_HEIGHT = 720;
-    private static final int BOARD_WIDTH = 1200;
+    private static final int BOARD_HEIGHT = 690;
+    private static final int BOARD_WIDTH = 1020;
     public static final int RANDOM_SEED = 1234567;
 
     /************** avatar properties ***************/
@@ -48,14 +47,14 @@ public class PepseGameManager extends GameManager {
 
     /************** Terrain properties ***************/
     public static final int TERRAIN_LAYER = Layer.STATIC_OBJECTS;
+    public static final int PADDING = 30;
 
     /************ Class attributes ***********/
-    private float worldCenter;
     private int worldLeftEnd, worldRightEnd;
     private Vector2 windowDimensions;
     private Terrain terrain;
     private Avatar avatar;
-
+    private NumericEnergyCounter energyCounter;
 
     /**
      * The constructor of Pepse Game Manager
@@ -81,9 +80,10 @@ public class PepseGameManager extends GameManager {
                                UserInputListener inputListener, WindowController windowController) {
 
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
+        Sound backgroundSound = soundReader.readSound("assets/mapleStory.wav");
+        backgroundSound.playLooped();
         this.windowDimensions = windowController.getWindowDimensions();
 
-        worldCenter = windowDimensions.x() / 2f;
         worldLeftEnd = (int) (-windowDimensions.x());
         worldRightEnd = (int) (windowDimensions.x() * 2f);
 
@@ -93,22 +93,33 @@ public class PepseGameManager extends GameManager {
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
+        numericEnergyCreator();
+    }
+
+    private void numericEnergyCreator() {
+        energyCounter = new NumericEnergyCounter(
+                new Vector2(windowDimensions.x() * 0.1f, windowDimensions.y() * 0.1f),
+                new Vector2(30f, 30f),
+                avatar.getEnergy());
+        gameObjects().addGameObject(energyCounter, Layer.UI);
     }
 
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-        float curPosition = avatar.getCenter().x();
-        Sun.circleCenter = new Vector2(curPosition, windowDimensions.y());
+        Vector2 curPosition = avatar.getCenter();
+        Sun.circleCenter = new Vector2(camera().getCenter().x(), windowDimensions.y());
+        energyCounter.setTopLeftCorner(new Vector2(camera().getTopLeftCorner().x() + PADDING,
+                camera().getTopLeftCorner().y() + PADDING));
 
-        if (curPosition > worldRightEnd - windowDimensions.x()) {
+        if (curPosition.x() > worldRightEnd - windowDimensions.x()) {
             createWorld(Direction.right);
             deleteWorld(Direction.left);
             worldRightEnd += windowDimensions.x();
             worldLeftEnd += windowDimensions.x();
         }
 
-        if (curPosition < worldLeftEnd + windowDimensions.x()) {
+        if (curPosition.x() < worldLeftEnd + windowDimensions.x()) {
             createWorld(Direction.left);
             deleteWorld(Direction.right);
             worldRightEnd -= windowDimensions.x();
@@ -151,7 +162,7 @@ public class PepseGameManager extends GameManager {
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float initialX = windowDimensions.x() / 2f;
-        Vector2 initialPosition = new Vector2(initialX, terrain.groundHeightAt(initialX) - Block.SIZE);
+        Vector2 initialPosition = new Vector2(initialX, terrain.groundHeightAt(initialX) - Block.SIZE * 3);
         avatar = Avatar.create(gameObjects(), Layer.DEFAULT, initialPosition, inputListener, imageReader);
         Vector2 distance = windowDimensions.mult(0.5f).subtract(avatar.getTopLeftCorner());
         setCamera(new Camera(avatar, distance, windowDimensions, windowDimensions));

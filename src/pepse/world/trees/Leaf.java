@@ -60,8 +60,8 @@ public class Leaf extends GameObject {
         int die_time = new Random().nextInt(15) + 5;
         this.transform().setVelocityY(LEAF_FALLING_SPEED);
         this.horizontalTransition = new Transition<>(this, this.transform()::setVelocityX,
-                -20f,
-                20f,
+                -25f,
+                25f,
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
                 1f,
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);

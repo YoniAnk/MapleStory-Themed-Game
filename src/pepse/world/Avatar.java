@@ -8,20 +8,29 @@ import danogl.components.ScheduledTask;
 import danogl.components.Transition;
 import danogl.gui.ImageReader;
 import danogl.gui.UserInputListener;
-import danogl.gui.rendering.RectangleRenderable;
+import danogl.gui.rendering.AnimationRenderable;
 import danogl.gui.rendering.Renderable;
+import danogl.util.Counter;
 import danogl.util.Vector2;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 
 public class Avatar extends GameObject {
-    private final int MOVEMENT_SPEED = 300;
-    private boolean isOnJump = true;
+    public static final int MASS = 100;
+    private static final int MOVEMENT_SPEED = 250;
+    private static final int MAX_ENERGY = 100;
+    public static final int FILL_ENERGY_AMOUNT = 1;
+    public static final int GRAVITY = 500;
 
-    private State state = State.jumpNormal;
+    private Counter energy;
     private final UserInputListener inputListener;
-    private Vector2 movementDir = Vector2.DOWN;
+    private boolean decreaseEnergy = true;
+    private State state = State.moveRight;
+    private AnimationRenderable walkLeft;
+    private AnimationRenderable walkRight;
+    private AnimationRenderable flyNormal;
+    private AnimationRenderable flyLeft;
+    private AnimationRenderable flyRight;
 
     /**
      * Construct a new GameObject instance.
@@ -35,61 +44,99 @@ public class Avatar extends GameObject {
     private Avatar(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener) {
         super(topLeftCorner, dimensions, renderable);
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
-        physics().setMass(100);
+        this.physics().setMass(MASS);
+        this.transform().setAccelerationY(GRAVITY);
         this.inputListener = inputListener;
-    }
-
-    private void jump() {
-        Vector2 startPos = this.getCenter();
-        Vector2 endPos = this.getCenter().subtract(new Vector2(0, 150));
-
-        new Transition<Vector2>(this, t -> setCenter(new Vector2(this.getCenter().x(), t.y())),
-                startPos,
-                endPos,
-                Transition.LINEAR_INTERPOLATOR_VECTOR,
-                0.45f,
-                Transition.TransitionType.TRANSITION_ONCE, null);
+        this.energy = new Counter(MAX_ENERGY);
     }
 
 
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
-        Vector2 movementDir = Vector2.DOWN.mult(MOVEMENT_SPEED);
+        manageFreeFall();
 
         if (inputListener.isKeyPressed(KeyEvent.VK_LEFT)) {
-            movementDir = movementDir.add(Vector2.LEFT.mult(MOVEMENT_SPEED));
+            transform().setVelocityX(-MOVEMENT_SPEED);
             if (isJumpState())
                 state = State.jumpLeft;
             else if (isFlightState())
                 state = State.flyLeft;
+            else
+                state = State.moveLeft;
         }
 
         if (inputListener.isKeyPressed(KeyEvent.VK_RIGHT)) {
-            movementDir = movementDir.add(Vector2.RIGHT.mult(MOVEMENT_SPEED));
+            transform().setVelocityX(MOVEMENT_SPEED);
             if (isJumpState())
                 state = State.jumpRight;
             else if (isFlightState())
                 state = State.flyRight;
+            else
+                state = State.moveRight;
         }
 
-        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && inputListener.isKeyPressed(KeyEvent.VK_SHIFT)) {
-            movementDir = movementDir.add(Vector2.UP.mult(MOVEMENT_SPEED * 2));
-            state = isFlightState() ? state: State.flyNormal;
+        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && inputListener.isKeyPressed(KeyEvent.VK_SHIFT) && energy.value() > 0) {
+            state = isFlightState() ? state : State.flyNormal;
+            this.transform().setVelocityY(-MOVEMENT_SPEED);
+        } else if (isFlightState()) {
+            if (state == State.flyLeft)
+                state = State.jumpLeft;
+            else
+                state = State.jumpRight;
         }
 
         if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && !isJumpState() && !isFlightState()) {
             state = State.jumpNormal;
-            jump();
+            this.transform().setVelocityY(-MOVEMENT_SPEED * 1.5f);
         }
-        setVelocity(movementDir);
-        transform().setAccelerationY(500f);
+        if (!inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
+                !inputListener.isKeyPressed(KeyEvent.VK_SHIFT) &&
+                !inputListener.isKeyPressed(KeyEvent.VK_LEFT) &&
+                !inputListener.isKeyPressed(KeyEvent.VK_RIGHT))
+            this.transform().setVelocityX(0);
+
+
+        updateEnenrgy();
         updateRenderable();
     }
 
-    private void updateRenderable() {
-
+    private void manageFreeFall() {
+        System.out.println(getVelocity());
     }
+
+    private void updateEnenrgy() {
+        decreaseEnergy = !decreaseEnergy;
+
+        if (decreaseEnergy) {
+            if (isFlightState())
+                energy.decrement();
+            if ((state == State.moveRight || state == State.moveLeft) && energy.value() < MAX_ENERGY)
+                energy.increaseBy(FILL_ENERGY_AMOUNT);
+            if (energy.value() > MAX_ENERGY) {
+                energy.reset();
+                energy.increaseBy(MAX_ENERGY);
+            }
+        }
+    }
+
+    private void updateRenderable() {
+        if (state == State.moveRight || state == State.jumpRight)
+            this.renderer().setRenderable(walkRight);
+        else if (state == State.moveLeft || state == State.jumpLeft)
+            this.renderer().setRenderable(walkLeft);
+        else if (state == State.flyNormal)
+            this.renderer().setRenderable(flyNormal);
+        else if (state == State.flyRight)
+            this.renderer().setRenderable(flyRight);
+        else if (state == State.flyLeft)
+            this.renderer().setRenderable(flyLeft);
+    }
+
+    public Counter getEnergy() {
+        return energy;
+    }
+
 
     private boolean isJumpState() {
         return state == State.jumpNormal || state == State.jumpRight || state == State.jumpLeft;
@@ -102,7 +149,12 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
-        new ScheduledTask(this, 0.01f, false, () -> this.state = State.walk);
+        new ScheduledTask(this, 0.01f, false, () -> {
+            if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)
+                this.state = State.moveLeft;
+            else
+                this.state = State.moveRight;
+        });
 
     }
 
@@ -111,15 +163,54 @@ public class Avatar extends GameObject {
                                 UserInputListener inputListener,
                                 ImageReader imageReader) {
 
-//        Renderable renderable = imageReader.readImage("assets/front_knight.png", true);
-        Renderable renderable = new RectangleRenderable(Color.BLACK);
-        Avatar avatar = new Avatar(topLeftCorner, new Vector2(50, 50), renderable, inputListener);
+        Avatar avatar = new Avatar(topLeftCorner, new Vector2(100, 100), null, inputListener);
+        avatar.walkLeft = createWalkAnimation(imageReader, State.moveLeft);
+        avatar.walkRight = createWalkAnimation(imageReader, State.moveRight);
+        avatar.flyLeft = createWalkAnimation(imageReader, State.flyLeft);
+        avatar.flyRight = createWalkAnimation(imageReader, State.flyRight);
+        avatar.flyNormal = createWalkAnimation(imageReader, State.flyNormal);
+
         gameObjects.addGameObject(avatar, layer);
         return avatar;
     }
 
+    private static AnimationRenderable createWalkAnimation(ImageReader imageReader, State state) {
+        if (state == State.moveRight) {
+            Renderable renderable1 = imageReader.readImage("assets/mushroom/normal/normal_right_1.png", true);
+            Renderable renderable2 = imageReader.readImage("assets/mushroom/normal/normal_right_2.png", true);
+            Renderable renderable3 = imageReader.readImage("assets/mushroom/normal/normal_right_3.png", true);
+            Renderable renderable4 = imageReader.readImage("assets/mushroom/normal/normal_right_4.png", true);
+            Renderable renderable5 = imageReader.readImage("assets/mushroom/normal/normal_right_5.png", true);
+            Renderable[] renderables = {renderable1, renderable2, renderable3, renderable4, renderable5, renderable1};
+            return new AnimationRenderable(renderables, 0.2f);
+        } else if (state == State.moveLeft) {
+            Renderable renderable1 = imageReader.readImage("assets/mushroom/normal/normal_left_1.png", true);
+            Renderable renderable2 = imageReader.readImage("assets/mushroom/normal/normal_left_2.png", true);
+            Renderable renderable3 = imageReader.readImage("assets/mushroom/normal/normal_left_3.png", true);
+            Renderable renderable4 = imageReader.readImage("assets/mushroom/normal/normal_left_4.png", true);
+            Renderable renderable5 = imageReader.readImage("assets/mushroom/normal/normal_left_5.png", true);
+            Renderable[] renderables = {renderable1, renderable2, renderable3, renderable4, renderable5, renderable1};
+            return new AnimationRenderable(renderables, 0.2f);
+        } else if (state == State.flyRight) {
+            Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyRight1.png", true);
+            Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyRight2.png", true);
+            Renderable[] renderables = {renderable1, renderable2};
+            return new AnimationRenderable(renderables, 0.2f);
+        } else if (state == State.flyLeft) {
+            Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyLeft1.png", true);
+            Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyLeft2.png", true);
+            Renderable[] renderables = {renderable1, renderable2};
+            return new AnimationRenderable(renderables, 0.2f);
+        } else if (state == State.flyNormal) {
+            Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyNormal1.png", true);
+            Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyNormal2.png", true);
+            Renderable[] renderables = {renderable1, renderable2};
+            return new AnimationRenderable(renderables, 0.2f);
+        }
+        return null;
+    }
+
     enum State {
-        walk,
         moveRight,
         moveLeft,
         jumpNormal,

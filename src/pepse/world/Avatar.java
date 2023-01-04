@@ -131,12 +131,12 @@ public class Avatar extends GameObject {
     }
 
     private void manageFreeFall() {
-        if (parachute != null)
-            parachute.setCenter(this.getCenter().subtract(new Vector2(0, parachute.getDimensions().y())));
+        parachute.setCenter(this.getCenter().subtract(new Vector2(0, parachute.getDimensions().y())));
         if (getVelocity().y() > 400f) {
-            if (parachute != null)
+            if (horizontalTransition == null) {
                 applyWind();
-            gameObjects.addGameObject(parachute, layer);
+                gameObjects.addGameObject(parachute, layer);
+            }
             this.setVelocity(new Vector2(getVelocity().x(), MAX_FALLING_SPEED));
         }
     }
@@ -187,8 +187,11 @@ public class Avatar extends GameObject {
         super.onCollisionEnter(other, collision);
         if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG)) {
             gameObjects.removeGameObject(parachute, layer);
-            //this.removeComponent(horizontalTransition);
-            parachute = null;
+            if (horizontalTransition != null){
+                this.removeComponent(horizontalTransition);
+                this.renderer().setRenderableAngle(0);
+            }
+            horizontalTransition = null;
         }
         new ScheduledTask(this, 0.01f, false, () -> {
             if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)

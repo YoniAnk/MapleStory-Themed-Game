@@ -16,8 +16,8 @@ public class Sun {
     public static final float SUN_SIZE = 150;
     private static final float SUN_SMALL_ROTATION_RADIUS = 550;
     private static final float SUN_LARGE_ROTATION_RADIUS = 650;
-    private static final float INIT_SUN_ANGLE = 270;
-    private static final float END_SUN_ANGLE = 630;
+    private static final float INIT_SUN_ANGLE = 630;
+    private static final float END_SUN_ANGLE = 270;
     public static Vector2 circleCenter;
 
     public static GameObject create(GameObjectCollection gameObjects, int layer, Vector2 windowDimensions,
@@ -26,7 +26,7 @@ public class Sun {
         GameObject sun = new GameObject(Vector2.ZERO, new Vector2(SUN_SIZE, SUN_SIZE), sunRenderable);
         sun.setTag(SUN_TAG);
         gameObjects.addGameObject(sun, layer);
-        circleCenter = new Vector2(windowDimensions.x() / 2, windowDimensions.y()); // TODO: change to screen center (to stay center if player moves)
+        circleCenter = new Vector2(windowDimensions.x() / 2, windowDimensions.y());
         SunMover mover = angle -> {
             float x = (float) (circleCenter.x() + SUN_LARGE_ROTATION_RADIUS * Math.cos(Math.toRadians(angle)));
             float y = (float) (circleCenter.y() + SUN_SMALL_ROTATION_RADIUS * Math.sin(Math.toRadians(angle)));

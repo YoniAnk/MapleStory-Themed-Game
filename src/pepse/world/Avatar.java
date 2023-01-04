@@ -12,6 +12,7 @@ import danogl.gui.rendering.AnimationRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
+import pepse.world.trees.Tree;
 
 import java.awt.event.KeyEvent;
 
@@ -22,10 +23,17 @@ public class Avatar extends GameObject {
     public static final int FILL_ENERGY_AMOUNT = 1;
     public static final int GRAVITY = 500;
     public static final float MAX_FALLING_SPEED = 350f;
+    public static final float GIF_FRAME_RATE = 0.1f;
+    public static final Vector2 AVATAR_SIZE = new Vector2(100, 100);
 
-    private Counter energy;
+    private final GameObjectCollection gameObjects;
+    private final int layer;
+    private GameObject parachute;
+    private final Counter energy;
     private final UserInputListener inputListener;
+    private final ImageReader imageReader;
     private boolean decreaseEnergy = true;
+    private Transition<Float> horizontalTransition = null;
     private State state = State.moveRight;
     private AnimationRenderable walkLeft;
     private AnimationRenderable walkRight;
@@ -39,16 +47,35 @@ public class Avatar extends GameObject {
      * @param topLeftCorner Position of the object, in window coordinates (pixels).
      *                      Note that (0,0) is the top-left corner of the window.
      * @param dimensions    Width and height in window coordinates.
-     * @param renderable    The renderable representing the object. Can be null, in which case
-     *                      the GameObject will not be rendered.
      */
-    private Avatar(Vector2 topLeftCorner, Vector2 dimensions, Renderable renderable, UserInputListener inputListener) {
-        super(topLeftCorner, dimensions, renderable);
+    private Avatar(GameObjectCollection gameObjects, Vector2 topLeftCorner, Vector2 dimensions,
+                   UserInputListener inputListener, ImageReader imageReader, int layer) {
+        super(topLeftCorner, dimensions, null);
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
         this.physics().setMass(MASS);
         this.transform().setAccelerationY(GRAVITY);
+        this.gameObjects = gameObjects;
         this.inputListener = inputListener;
+        this.imageReader = imageReader;
+        this.layer = layer;
         this.energy = new Counter(MAX_ENERGY);
+        this.parachute = createParachute();
+    }
+
+    public static Avatar create(GameObjectCollection gameObjects,
+                                int layer, Vector2 topLeftCorner,
+                                UserInputListener inputListener,
+                                ImageReader imageReader) {
+
+        Avatar avatar = new Avatar(gameObjects, topLeftCorner, AVATAR_SIZE, inputListener, imageReader, layer);
+        avatar.walkLeft = createWalkAnimation(imageReader, State.moveLeft);
+        avatar.walkRight = createWalkAnimation(imageReader, State.moveRight);
+        avatar.flyLeft = createWalkAnimation(imageReader, State.flyLeft);
+        avatar.flyRight = createWalkAnimation(imageReader, State.flyRight);
+        avatar.flyNormal = createWalkAnimation(imageReader, State.flyNormal);
+
+        gameObjects.addGameObject(avatar, layer);
+        return avatar;
     }
 
 
@@ -77,7 +104,8 @@ public class Avatar extends GameObject {
                 state = State.moveRight;
         }
 
-        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && inputListener.isKeyPressed(KeyEvent.VK_SHIFT) && energy.value() > 0) {
+        if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && inputListener.isKeyPressed(KeyEvent.VK_SHIFT) &&
+                energy.value() > 0) {
             state = isFlightState() ? state : State.flyNormal;
             this.transform().setVelocityY(-MOVEMENT_SPEED);
         } else if (isFlightState()) {
@@ -95,19 +123,25 @@ public class Avatar extends GameObject {
                 !inputListener.isKeyPressed(KeyEvent.VK_SHIFT) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_LEFT) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_RIGHT))
-            this.transform().setVelocityX(0);
+            this.transform().setVelocityX(getVelocity().x());
 
 
-        updateEnenrgy();
+        updateEnergy();
         updateRenderable();
     }
 
     private void manageFreeFall() {
-        if (getVelocity().y() > 400f)
+        if (parachute != null)
+            parachute.setCenter(this.getCenter().subtract(new Vector2(0, parachute.getDimensions().y())));
+        if (getVelocity().y() > 400f) {
+            if (parachute != null)
+                applyWind();
+            gameObjects.addGameObject(parachute, layer);
             this.setVelocity(new Vector2(getVelocity().x(), MAX_FALLING_SPEED));
+        }
     }
 
-    private void updateEnenrgy() {
+    private void updateEnergy() {
         decreaseEnergy = !decreaseEnergy;
 
         if (decreaseEnergy) {
@@ -151,6 +185,11 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
+        if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG)) {
+            gameObjects.removeGameObject(parachute, layer);
+            //this.removeComponent(horizontalTransition);
+            parachute = null;
+        }
         new ScheduledTask(this, 0.01f, false, () -> {
             if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)
                 this.state = State.moveLeft;
@@ -160,21 +199,6 @@ public class Avatar extends GameObject {
 
     }
 
-    public static Avatar create(GameObjectCollection gameObjects,
-                                int layer, Vector2 topLeftCorner,
-                                UserInputListener inputListener,
-                                ImageReader imageReader) {
-
-        Avatar avatar = new Avatar(topLeftCorner, new Vector2(100, 100), null, inputListener);
-        avatar.walkLeft = createWalkAnimation(imageReader, State.moveLeft);
-        avatar.walkRight = createWalkAnimation(imageReader, State.moveRight);
-        avatar.flyLeft = createWalkAnimation(imageReader, State.flyLeft);
-        avatar.flyRight = createWalkAnimation(imageReader, State.flyRight);
-        avatar.flyNormal = createWalkAnimation(imageReader, State.flyNormal);
-
-        gameObjects.addGameObject(avatar, layer);
-        return avatar;
-    }
 
     private static AnimationRenderable createWalkAnimation(ImageReader imageReader, State state) {
         if (state == State.moveRight) {
@@ -184,7 +208,7 @@ public class Avatar extends GameObject {
             Renderable renderable4 = imageReader.readImage("assets/mushroom/normal/normal_right_4.png", true);
             Renderable renderable5 = imageReader.readImage("assets/mushroom/normal/normal_right_5.png", true);
             Renderable[] renderables = {renderable1, renderable2, renderable3, renderable4, renderable5, renderable1};
-            return new AnimationRenderable(renderables, 0.2f);
+            return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.moveLeft) {
             Renderable renderable1 = imageReader.readImage("assets/mushroom/normal/normal_left_1.png", true);
             Renderable renderable2 = imageReader.readImage("assets/mushroom/normal/normal_left_2.png", true);
@@ -192,24 +216,41 @@ public class Avatar extends GameObject {
             Renderable renderable4 = imageReader.readImage("assets/mushroom/normal/normal_left_4.png", true);
             Renderable renderable5 = imageReader.readImage("assets/mushroom/normal/normal_left_5.png", true);
             Renderable[] renderables = {renderable1, renderable2, renderable3, renderable4, renderable5, renderable1};
-            return new AnimationRenderable(renderables, 0.2f);
+            return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.flyRight) {
             Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyRight1.png", true);
             Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyRight2.png", true);
             Renderable[] renderables = {renderable1, renderable2};
-            return new AnimationRenderable(renderables, 0.2f);
+            return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.flyLeft) {
             Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyLeft1.png", true);
             Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyLeft2.png", true);
             Renderable[] renderables = {renderable1, renderable2};
-            return new AnimationRenderable(renderables, 0.2f);
+            return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.flyNormal) {
             Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyNormal1.png", true);
             Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyNormal2.png", true);
             Renderable[] renderables = {renderable1, renderable2};
-            return new AnimationRenderable(renderables, 0.2f);
+            return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         }
         return null;
+    }
+
+    private GameObject createParachute() {
+        Renderable parachuteImg = imageReader.readImage("assets/parachute.png", true);
+        Vector2 parachuteSize = new Vector2(100, 100);
+        Vector2 parachutePos = this.getTopLeftCorner().add(
+                new Vector2(this.getDimensions().x() / 2, parachuteSize.y()));
+        return new GameObject(parachutePos, parachuteSize, parachuteImg);
+    }
+
+    private void applyWind() {
+        this.horizontalTransition = new Transition<>(this, this.renderer()::setRenderableAngle,
+                -30f,
+                30f,
+                Transition.LINEAR_INTERPOLATOR_FLOAT,
+                1f,
+                Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
     }
 
     enum State {

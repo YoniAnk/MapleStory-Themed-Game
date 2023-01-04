@@ -21,6 +21,7 @@ public class Avatar extends GameObject {
     private static final int MAX_ENERGY = 100;
     public static final int FILL_ENERGY_AMOUNT = 1;
     public static final int GRAVITY = 500;
+    public static final float MAX_FALLING_SPEED = 350f;
 
     private Counter energy;
     private final UserInputListener inputListener;
@@ -102,7 +103,8 @@ public class Avatar extends GameObject {
     }
 
     private void manageFreeFall() {
-        System.out.println(getVelocity());
+        if (getVelocity().y() > 400f)
+            this.setVelocity(new Vector2(getVelocity().x(), MAX_FALLING_SPEED));
     }
 
     private void updateEnenrgy() {

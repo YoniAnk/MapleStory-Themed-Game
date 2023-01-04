@@ -123,7 +123,7 @@ public class Avatar extends GameObject {
                 !inputListener.isKeyPressed(KeyEvent.VK_SHIFT) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_LEFT) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_RIGHT))
-            this.transform().setVelocityX(getVelocity().x());
+            this.transform().setVelocityX(0);
 
 
         updateEnergy();

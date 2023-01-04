@@ -56,6 +56,7 @@ public class PepseGameManager extends GameManager {
 
     /************ Class attributes ***********/
     private float worldCenter;
+    private int worldLeftEnd, worldRightEnd;
     private Vector2 windowDimensions;
     private Terrain terrain;
     private Avatar avatar;
@@ -86,14 +87,14 @@ public class PepseGameManager extends GameManager {
 
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
         this.windowDimensions = windowController.getWindowDimensions();
-        worldCenter = windowDimensions.x() / 2f;
 
-        int worldStartX = (int) (worldCenter - windowDimensions.x() * 1.5);
-        int worldEndX = (int) (worldCenter + windowDimensions.x() * 1.5);
+        worldCenter = windowDimensions.x() / 2f;
+        worldLeftEnd = (int) (-windowDimensions.x());
+        worldRightEnd = (int) (windowDimensions.x() * 2f);
 
         skyCreator();
-        terrainCreator(worldStartX, worldEndX);
-        treesCreator(worldStartX, worldEndX);
+        terrainCreator(worldLeftEnd, worldRightEnd);
+        treesCreator(worldLeftEnd, worldRightEnd);
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
@@ -104,41 +105,42 @@ public class PepseGameManager extends GameManager {
         super.update(deltaTime);
         float curPosition = avatar.getCenter().x();
 
-        if (curPosition > worldCenter + windowDimensions.x()) {
-            worldCenter = curPosition;
+        if (curPosition > worldRightEnd - windowDimensions.x()) {
             createWorld(Direction.right);
             deleteWorld(Direction.left);
+            worldRightEnd += windowDimensions.x();
+            worldLeftEnd += windowDimensions.x();
         }
 
-        if (curPosition < worldCenter - windowDimensions.x()) {
-            worldCenter = curPosition;
+        if (curPosition < worldLeftEnd + windowDimensions.x()) {
             createWorld(Direction.left);
             deleteWorld(Direction.right);
+            worldRightEnd -= windowDimensions.x();
+            worldLeftEnd -= windowDimensions.x();
         }
     }
 
     private void createWorld(Direction world) {
         int start, end;
 
-        if (world == Direction.right) {
-            start = (int) (worldCenter + windowDimensions.x() / 2);
+        if (world == Direction.right) {     // create right world
+            start = worldRightEnd;
             end = (int) (start + windowDimensions.x());
-        } else {
-            end = (int) (worldCenter - windowDimensions.x() / 2);
+        } else {                            // create left world
+            end = worldLeftEnd;
             start = (int) (end - windowDimensions.x());
         }
 
         this.terrain.createInRange(start, end);
         this.treesCreator(start, end);
-
     }
 
-    private void deleteObjectsInLayer(Direction world, int layer){
+    private void deleteObjectsInLayer(Direction world, int layer) {
         Consumer<GameObject> deleteTerrain = (object) -> {
             if (world == Direction.left) {
-                if (worldCenter - (1.5 * windowDimensions.x()) > object.getTopLeftCorner().x())
+                if (object.getTopLeftCorner().x() < worldLeftEnd + windowDimensions.x())
                     gameObjects().removeGameObject(object, layer);
-            } else if (worldCenter + (1.5 * windowDimensions.x()) < object.getTopLeftCorner().x())
+            } else if (object.getTopLeftCorner().x() > worldRightEnd - windowDimensions.x())
                 gameObjects().removeGameObject(object, layer);
         };
         gameObjects().objectsInLayer(layer).forEach(deleteTerrain);
@@ -149,7 +151,6 @@ public class PepseGameManager extends GameManager {
         deleteObjectsInLayer(world, TRUNK_LAYER);
         deleteObjectsInLayer(world, LEAVES_LAYER);
     }
-
 
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {

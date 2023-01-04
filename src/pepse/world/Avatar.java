@@ -28,7 +28,7 @@ public class Avatar extends GameObject {
 
     private final GameObjectCollection gameObjects;
     private final int layer;
-    private GameObject parachute;
+    private final GameObject parachute;
     private final Counter energy;
     private final UserInputListener inputListener;
     private final ImageReader imageReader;
@@ -148,7 +148,7 @@ public class Avatar extends GameObject {
             if (isFlightState())
                 energy.decrement();
             if ((state == State.moveRight || state == State.moveLeft) && energy.value() < MAX_ENERGY)
-                energy.increaseBy(FILL_ENERGY_AMOUNT);
+                energy.increment();
             if (energy.value() > MAX_ENERGY) {
                 energy.reset();
                 energy.increaseBy(MAX_ENERGY);
@@ -187,19 +187,20 @@ public class Avatar extends GameObject {
         super.onCollisionEnter(other, collision);
         if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG)) {
             gameObjects.removeGameObject(parachute, layer);
-            if (horizontalTransition != null){
-                this.removeComponent(horizontalTransition);
-                this.renderer().setRenderableAngle(0);
-            }
-            horizontalTransition = null;
+            new ScheduledTask(this, 0.01f, false, this::stopRotating);
         }
-        new ScheduledTask(this, 0.01f, false, () -> {
-            if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)
-                this.state = State.moveLeft;
-            else
-                this.state = State.moveRight;
-        });
+        if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)
+            this.state = State.moveLeft;
+        else
+            this.state = State.moveRight;
+    }
 
+    private void stopRotating() {
+        if (horizontalTransition != null) {
+            this.removeComponent(horizontalTransition);
+            this.renderer().setRenderableAngle(0);
+        }
+        horizontalTransition = null;
     }
 
 

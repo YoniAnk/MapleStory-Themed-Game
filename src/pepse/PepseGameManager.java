@@ -88,8 +88,8 @@ public class PepseGameManager extends GameManager {
         this.windowDimensions = windowController.getWindowDimensions();
         worldCenter = windowDimensions.x() / 2f;
 
-        int worldStartX = (int) (worldCenter - windowDimensions.x() * 1.5);
-        int worldEndX = (int) (worldCenter + windowDimensions.x() * 1.5);
+        int worldStartX = (int) ((worldCenter - windowDimensions.x()));
+        int worldEndX = (int) ((worldCenter + windowDimensions.x()));
 
         skyCreator();
         terrainCreator(worldStartX, worldEndX);
@@ -106,14 +106,14 @@ public class PepseGameManager extends GameManager {
 
         if (curPosition > worldCenter + windowDimensions.x()) {
             worldCenter = curPosition;
-            createWorld(Direction.right);
-            deleteWorld(Direction.left);
+//            createWorld(Direction.right);
+//            deleteWorld(Direction.left);
         }
 
         if (curPosition < worldCenter - windowDimensions.x()) {
             worldCenter = curPosition;
-            createWorld(Direction.left);
-            deleteWorld(Direction.right);
+//            createWorld(Direction.left);
+//            deleteWorld(Direction.right);
         }
     }
 

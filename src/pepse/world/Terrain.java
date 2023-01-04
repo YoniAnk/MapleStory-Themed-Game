@@ -50,15 +50,12 @@ public class Terrain {
     }
 
     public void createInRange(int minX, int maxX) {
-        int layer;
         for (int curX = minX; curX < maxX; curX += Block.SIZE) {
             float curY = groundHeightAt(curX);
+            int layer = groundLayer;
             for (int i = 0; i < TERRAIN_DEPTH; ++i) {
                 Renderable renderable = new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
-
                 if (i > 1) layer = groundLayer - 1;
-                else layer = groundLayer;
-
                 Block block = new Block(new Vector2(curX, curY), renderable);
                 block.setTag(TERRAIN_TAG);
                 this.gameObjects.addGameObject(block, layer);

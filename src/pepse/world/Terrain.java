@@ -44,12 +44,13 @@ public class Terrain {
         double noiseValue = this.noiseGenerator.noise((int) (x / blockSize), numBlocks, frequency);
         // scale the noise value to the desired range
         int terrainHeight = (int) (noiseValue * windowsDimensions.y() / 2.0f);
-        return (this.groundHeightAtX0 - terrainHeight);
+        float height = this.groundHeightAtX0 - terrainHeight;
+        return (float) Math.floor(height / Block.SIZE) * Block.SIZE;
     }
 
     public void createInRange(int minX, int maxX) {
         for (int curX = minX; curX < maxX; curX += Block.SIZE) {
-            float curY = (float) Math.floor(groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
+            float curY = groundHeightAt(curX);
             for (int i = 0; i < TERRAIN_DEPTH; ++i) {
                 Renderable renderable = new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
                 Block block = new Block(new Vector2(curX, curY), renderable);

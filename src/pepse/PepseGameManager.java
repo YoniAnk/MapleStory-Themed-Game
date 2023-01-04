@@ -8,22 +8,17 @@ import danogl.gui.SoundReader;
 import danogl.gui.UserInputListener;
 import danogl.gui.WindowController;
 import danogl.gui.rendering.Camera;
-import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
-import pepse.world.daynight.Moon;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
-import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
 
 import java.awt.*;
-import java.awt.image.renderable.RenderableImage;
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class PepseGameManager extends GameManager {
@@ -104,6 +99,7 @@ public class PepseGameManager extends GameManager {
     public void update(float deltaTime) {
         super.update(deltaTime);
         float curPosition = avatar.getCenter().x();
+        Sun.circleCenter = new Vector2(curPosition, windowDimensions.y());
 
         if (curPosition > worldRightEnd - windowDimensions.x()) {
             createWorld(Direction.right);
@@ -154,7 +150,9 @@ public class PepseGameManager extends GameManager {
 
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
-        avatar = Avatar.create(gameObjects(), Layer.DEFAULT, windowDimensions.mult(0.5f), inputListener, imageReader);
+        float initialX = windowDimensions.x() / 2f;
+        Vector2 initialPosition = new Vector2(initialX, terrain.groundHeightAt(initialX) - Block.SIZE);
+        avatar = Avatar.create(gameObjects(), Layer.DEFAULT, initialPosition, inputListener, imageReader);
         Vector2 distance = windowDimensions.mult(0.5f).subtract(avatar.getTopLeftCorner());
         setCamera(new Camera(avatar, distance, windowDimensions, windowDimensions));
     }
@@ -175,13 +173,12 @@ public class PepseGameManager extends GameManager {
         GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);
         GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
-        GameObject moon = Moon.create(gameObjects(), MOON_LAYER, windowDimensions, SUNSET_CYCLE);
     }
 
     private void treesCreator(int start, int end) {
         for (int curX = start; curX <= end; curX += 2 * Block.SIZE) {
             if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
-                float curY = (float) Math.floor(terrain.groundHeightAt(curX) / Block.SIZE) * Block.SIZE;
+                float curY = terrain.groundHeightAt(curX);
                 Vector2 position = new Vector2(curX, curY - Block.SIZE);
                 Tree.Create(gameObjects(), position, TRUNK_LAYER, LEAVES_LAYER, RANDOM_SEED);
             }

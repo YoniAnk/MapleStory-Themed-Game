@@ -12,6 +12,7 @@ import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.daynight.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -87,13 +88,14 @@ public class PepseGameManager extends GameManager {
         worldLeftEnd = (int) (-windowDimensions.x());
         worldRightEnd = (int) (windowDimensions.x() * 2f);
 
-        skyCreator();
+        skyCreator(imageReader);
         terrainCreator(worldLeftEnd, worldRightEnd);
         treesCreator(worldLeftEnd, worldRightEnd);
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
+
     }
 
     private void numericEnergyCreator() {
@@ -179,7 +181,7 @@ public class PepseGameManager extends GameManager {
     /**
      * Creates a new sky and adds it to the list of game objects.
      */
-    private void skyCreator() {
+    private void skyCreator(ImageReader imageReader) {
         GameObject sky = Sky.create(gameObjects(), windowDimensions, SKY_LAYER);
         GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);

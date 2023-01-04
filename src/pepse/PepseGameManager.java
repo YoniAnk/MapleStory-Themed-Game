@@ -2,7 +2,6 @@ package pepse;
 
 import danogl.GameManager;
 import danogl.GameObject;
-import danogl.collisions.GameObjectCollection;
 import danogl.collisions.Layer;
 import danogl.gui.*;
 import danogl.gui.rendering.Camera;
@@ -12,7 +11,6 @@ import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
-import pepse.world.daynight.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -31,10 +29,11 @@ public class PepseGameManager extends GameManager {
 
     /************** avatar properties ***************/
     public static final int AVATAR_LAYER = Layer.DEFAULT;
+    public static final int PARACHUTE_LAYER = Layer.BACKGROUND;
+
 
     /************** day/night properties ***************/
     public static final int SUN_LAYER = Layer.BACKGROUND;
-    public static final int MOON_LAYER = Layer.BACKGROUND;
     public static final int SKY_LAYER = Layer.BACKGROUND;
     public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
@@ -47,7 +46,9 @@ public class PepseGameManager extends GameManager {
     public static final int LEAVES_LAYER = 1;
 
     /************** Terrain properties ***************/
-    public static final int TERRAIN_LAYER = Layer.STATIC_OBJECTS;
+    public static final int TOP_TERRAIN_LAYER = Layer.STATIC_OBJECTS;
+    public static final int BOTTOM_TERRAIN_LAYER = Layer.STATIC_OBJECTS - 1;
+
     public static final int PADDING = 30;
 
     /************ Class attributes ***********/
@@ -88,10 +89,10 @@ public class PepseGameManager extends GameManager {
         worldLeftEnd = (int) (-windowDimensions.x());
         worldRightEnd = (int) (windowDimensions.x() * 2f);
 
-        skyCreator(imageReader);
+        skyCreator();
         terrainCreator(worldLeftEnd, worldRightEnd);
         treesCreator(worldLeftEnd, worldRightEnd);
-        gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TERRAIN_LAYER, true);
+        gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TOP_TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
@@ -156,11 +157,11 @@ public class PepseGameManager extends GameManager {
     }
 
     private void deleteWorld(Direction world) {
-        deleteObjectsInLayer(world, TERRAIN_LAYER);
+        deleteObjectsInLayer(world, TOP_TERRAIN_LAYER);
+        deleteObjectsInLayer(world, BOTTOM_TERRAIN_LAYER);
         deleteObjectsInLayer(world, TRUNK_LAYER);
         deleteObjectsInLayer(world, LEAVES_LAYER);
     }
-
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float initialX = windowDimensions.x() / 2f;
@@ -174,14 +175,14 @@ public class PepseGameManager extends GameManager {
      * Creates a new terrain and adds it to the list of game objects.
      */
     private void terrainCreator(int start, int end) {
-        this.terrain = new Terrain(this.gameObjects(), TERRAIN_LAYER, windowDimensions, RANDOM_SEED);
+        this.terrain = new Terrain(this.gameObjects(), TOP_TERRAIN_LAYER, windowDimensions, RANDOM_SEED);
         terrain.createInRange(start, end);
     }
 
     /**
      * Creates a new sky and adds it to the list of game objects.
      */
-    private void skyCreator(ImageReader imageReader) {
+    private void skyCreator() {
         GameObject sky = Sky.create(gameObjects(), windowDimensions, SKY_LAYER);
         GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);

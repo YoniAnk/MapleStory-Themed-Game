@@ -12,6 +12,7 @@ import danogl.gui.rendering.AnimationRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
+import pepse.PepseGameManager;
 import pepse.world.trees.Tree;
 
 import java.awt.event.KeyEvent;
@@ -20,11 +21,11 @@ public class Avatar extends GameObject {
     public static final int MASS = 100;
     private static final int MOVEMENT_SPEED = 250;
     private static final int MAX_ENERGY = 100;
-    public static final int FILL_ENERGY_AMOUNT = 1;
     public static final int GRAVITY = 500;
     public static final float MAX_FALLING_SPEED = 350f;
     public static final float GIF_FRAME_RATE = 0.1f;
     public static final Vector2 AVATAR_SIZE = new Vector2(100, 100);
+    public static final float VELOCITY_TO_START_PARACHUTE = 420f;
 
     private final GameObjectCollection gameObjects;
     private final int layer;
@@ -49,7 +50,7 @@ public class Avatar extends GameObject {
      * @param dimensions    Width and height in window coordinates.
      */
     private Avatar(GameObjectCollection gameObjects, Vector2 topLeftCorner, Vector2 dimensions,
-                   UserInputListener inputListener, ImageReader imageReader, int layer) {
+                   UserInputListener inputListener, ImageReader imageReader, int avatarLayer) {
         super(topLeftCorner, dimensions, null);
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
         this.physics().setMass(MASS);
@@ -57,7 +58,7 @@ public class Avatar extends GameObject {
         this.gameObjects = gameObjects;
         this.inputListener = inputListener;
         this.imageReader = imageReader;
-        this.layer = layer;
+        this.layer = avatarLayer;
         this.energy = new Counter(MAX_ENERGY);
         this.parachute = createParachute();
     }
@@ -132,10 +133,10 @@ public class Avatar extends GameObject {
 
     private void manageFreeFall() {
         parachute.setCenter(this.getCenter().subtract(new Vector2(0, parachute.getDimensions().y())));
-        if (getVelocity().y() > 400f) {
+        if (getVelocity().y() > VELOCITY_TO_START_PARACHUTE) {
             if (horizontalTransition == null) {
                 applyWind();
-                gameObjects.addGameObject(parachute, layer);
+                gameObjects.addGameObject(parachute, PepseGameManager.PARACHUTE_LAYER);
             }
             this.setVelocity(new Vector2(getVelocity().x(), MAX_FALLING_SPEED));
         }
@@ -149,6 +150,7 @@ public class Avatar extends GameObject {
                 energy.decrement();
             if ((state == State.moveRight || state == State.moveLeft) && energy.value() < MAX_ENERGY)
                 energy.increment();
+
             if (energy.value() > MAX_ENERGY) {
                 energy.reset();
                 energy.increaseBy(MAX_ENERGY);
@@ -186,7 +188,7 @@ public class Avatar extends GameObject {
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
         if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG)) {
-            gameObjects.removeGameObject(parachute, layer);
+            gameObjects.removeGameObject(parachute, PepseGameManager.PARACHUTE_LAYER);
             new ScheduledTask(this, 0.01f, false, this::stopRotating);
         }
         if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)

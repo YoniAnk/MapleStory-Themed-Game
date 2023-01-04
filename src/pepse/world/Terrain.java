@@ -5,6 +5,7 @@ import danogl.collisions.Layer;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
+import pepse.PepseGameManager;
 import pepse.util.ColorSupplier;
 import pepse.util.NoiseGenerator;
 
@@ -55,7 +56,7 @@ public class Terrain {
             int layer = groundLayer;
             for (int i = 0; i < TERRAIN_DEPTH; ++i) {
                 Renderable renderable = new RectangleRenderable(ColorSupplier.approximateColor(BASE_GROUND_COLOR));
-                if (i > 1) layer = groundLayer - 1;
+                if (i > 1) layer = PepseGameManager.BOTTOM_TERRAIN_LAYER;
                 Block block = new Block(new Vector2(curX, curY), renderable);
                 block.setTag(TERRAIN_TAG);
                 this.gameObjects.addGameObject(block, layer);

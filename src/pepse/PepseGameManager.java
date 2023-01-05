@@ -24,22 +24,30 @@ public class PepseGameManager extends GameManager {
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 690;
     private static final int BOARD_WIDTH = 1020;
-    public static final int RANDOM_SEED = 1234567;
+    private static final int RANDOM_SEED = 1234567;
+    private static final String BACKGROUND_MUSIC_PATH = "assets/mapleStory.wav";
 
     /************** avatar properties ***************/
     public static final int AVATAR_LAYER = Layer.DEFAULT;
     public static final int PARACHUTE_LAYER = Layer.BACKGROUND;
 
-
     /************** day/night properties ***************/
     public static final int SUN_LAYER = Layer.BACKGROUND;
-    public static final int CLOUD_LAYER = SUN_LAYER + 1;
     public static final int SKY_LAYER = Layer.BACKGROUND;
     public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
     private static final float NIGHT_CYCLE_LEN = 48;
     private static final float SUNSET_CYCLE = NIGHT_CYCLE_LEN * 2;
     private static final Color HALO_COLOR = new Color(255, 255, 0, 20);
+
+    /************** clouds properties ***************/
+    public static final int CLOUD_LAYER = SUN_LAYER + 1;
+    private static final int CLOUD1_START = 650;
+    private static final int CLOUD1_CYCLE_LEN = 20;
+    private static final int CLOUD2_CYCLE_LEN = 25;
+    private static final int CLOUD2_START = 20;
+    private static final Vector2 START_POSITION_CLOUD_1 = new Vector2(0f, 100f);
+    private static final Vector2 START_POSITION_CLOUD_2 = new Vector2(0f, -70f);
 
     /************** Trees properties ***************/
     public static final int TRUNK_LAYER = Layer.STATIC_OBJECTS + 1;
@@ -52,11 +60,12 @@ public class PepseGameManager extends GameManager {
     /************** Monsters properties ***************/
     public static final int MONSTERS_LAYER = 2;
 
-    public static final int PADDING = 30;
-    public static final int CLOUD1_START = 650;
-    public static final int CLOUD1_CYCLE_LEN = 20;
-    public static final int CLOUD2_CYCLE_LEN = 25;
-    public static final int CLOUD2_START = 20;
+    /************** energy text properties ***************/
+    public static final int NUMERIC_ENERGY_LAYER = Layer.UI;
+    private static final int PADDING = 30;
+    private static final int EPSILON = 3;
+    private static final float TEXT_PADDING = 0.1f;
+    private static final Vector2 ENERGY_TEXT_SIZE = new Vector2(30f, 30f);
 
     /************ Class attributes ***********/
     private int worldLeftEnd, worldRightEnd;
@@ -90,7 +99,7 @@ public class PepseGameManager extends GameManager {
                                UserInputListener inputListener, WindowController windowController) {
 
         super.initializeGame(imageReader, soundReader, inputListener, windowController);
-        Sound backgroundSound = soundReader.readSound("assets/mapleStory.wav");
+        Sound backgroundSound = soundReader.readSound(BACKGROUND_MUSIC_PATH);
         backgroundSound.playLooped();
         this.windowDimensions = windowController.getWindowDimensions();
 
@@ -99,7 +108,7 @@ public class PepseGameManager extends GameManager {
 
         skyCreator(imageReader);
         terrainCreator(worldLeftEnd, worldRightEnd);
-        treesCreator(worldLeftEnd + 3 * Block.SIZE, worldRightEnd - 3 * Block.SIZE);
+        treesCreator(worldLeftEnd + EPSILON * Block.SIZE, worldRightEnd - EPSILON * Block.SIZE);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
         monsterFactory = new MonsterFactory(imageReader, RANDOM_SEED);
@@ -113,7 +122,7 @@ public class PepseGameManager extends GameManager {
     }
 
     private void createSingleMonster(int start, int end) {
-        for (int x = start + Block.SIZE; x < end - Block.SIZE * 3; x += Block.SIZE) {
+        for (int x = start + Block.SIZE; x < end - Block.SIZE * EPSILON; x += Block.SIZE) {
             if (!Tree.shouldPlantTree(RANDOM_SEED, x)) {
                 int y = (int) terrain.groundHeightAt(x);
                 gameObjects().addGameObject(
@@ -121,7 +130,6 @@ public class PepseGameManager extends GameManager {
                 return;
             }
         }
-
     }
 
     private void applyLayersCollisions() {
@@ -134,23 +142,17 @@ public class PepseGameManager extends GameManager {
     }
 
     private void cloudsCreator(ImageReader imageReader) {
-        Vector2 topLeftCornerCloud1 = new Vector2(0f, 100f);
-        Vector2 topLeftCornerCloud2 = new Vector2(0f, -70f);
-
-        GameObject cloud1 = Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD1_CYCLE_LEN,
-                imageReader, topLeftCornerCloud1, CLOUD1_START);
-
-        GameObject cloud2 = Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD2_CYCLE_LEN,
-                imageReader, topLeftCornerCloud2, CLOUD2_START);
-
+        Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD1_CYCLE_LEN,
+                imageReader, START_POSITION_CLOUD_1, CLOUD1_START);
+        Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD2_CYCLE_LEN,
+                imageReader, START_POSITION_CLOUD_2, CLOUD2_START);
     }
 
     private void numericEnergyCreator() {
         energyCounter = new NumericEnergyCounter(
-                new Vector2(windowDimensions.x() * 0.1f, windowDimensions.y() * 0.1f),
-                new Vector2(30f, 30f),
-                avatar.getEnergy());
-        gameObjects().addGameObject(energyCounter, Layer.UI);
+                new Vector2(windowDimensions.x() * TEXT_PADDING, windowDimensions.y() * TEXT_PADDING),
+                ENERGY_TEXT_SIZE, avatar.getEnergy());
+        gameObjects().addGameObject(energyCounter, NUMERIC_ENERGY_LAYER);
     }
 
     @Override
@@ -188,7 +190,7 @@ public class PepseGameManager extends GameManager {
         }
 
         this.terrain.createInRange(start, end);
-        treesCreator(start + 3 * Block.SIZE, end - 3 * Block.SIZE);
+        treesCreator(start + 3 * Block.SIZE, end - EPSILON * Block.SIZE);
         monstersCreator(start, end, (int) windowDimensions.x());
     }
 
@@ -209,12 +211,12 @@ public class PepseGameManager extends GameManager {
         deleteObjectsInLayer(world, TRUNK_LAYER);
         deleteObjectsInLayer(world, LEAVES_LAYER);
         deleteObjectsInLayer(world, MONSTERS_LAYER);
-
     }
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float initialX = windowDimensions.x() / 2f;
-        Vector2 initialPosition = new Vector2(initialX, terrain.groundHeightAt(initialX) - Block.SIZE * 3);
+        Vector2 initialPosition = new Vector2(
+                initialX, terrain.groundHeightAt(initialX) - Block.SIZE * EPSILON);
         avatar = Avatar.create(gameObjects(), Layer.DEFAULT, initialPosition, inputListener, imageReader);
         Vector2 distance = windowDimensions.mult(0.5f).subtract(avatar.getTopLeftCorner());
         setCamera(new Camera(avatar, distance, windowDimensions, windowDimensions));
@@ -232,10 +234,10 @@ public class PepseGameManager extends GameManager {
      * Creates a new sky and adds it to the list of game objects.
      */
     private void skyCreator(ImageReader imageReader) {
-        GameObject sky = Sky.create(gameObjects(), windowDimensions, SKY_LAYER);
-        GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
+        Sky.create(gameObjects(), windowDimensions, SKY_LAYER);
+        Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);
-        GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
+        SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
         cloudsCreator(imageReader);
     }
 

@@ -8,9 +8,7 @@ import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
 import pepse.util.NumericEnergyCounter;
 import pepse.world.*;
-import pepse.world.Monsters.Monster;
 import pepse.world.Monsters.MonsterFactory;
-import pepse.world.Monsters.Monsters;
 import pepse.world.daynight.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
@@ -18,8 +16,6 @@ import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Tree;
 
 import java.awt.*;
-import java.util.Objects;
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class PepseGameManager extends GameManager {
@@ -121,7 +117,7 @@ public class PepseGameManager extends GameManager {
             if (!Tree.shouldPlantTree(RANDOM_SEED, x)) {
                 int y = (int) terrain.groundHeightAt(x);
                 gameObjects().addGameObject(
-                        monsterFactory.getRandomMonster(x, new Vector2(x, y)), MONSTERS_LAYER);
+                        monsterFactory.createRandomMonster(x, new Vector2(x, y)), MONSTERS_LAYER);
                 return;
             }
         }

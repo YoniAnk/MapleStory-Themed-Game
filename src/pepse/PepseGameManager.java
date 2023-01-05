@@ -23,7 +23,7 @@ public class PepseGameManager extends GameManager {
     /************ Game Settings Constants ***************/
     public static final String WINDOWS_NAME = "Pepse Game";
     private static final int BOARD_HEIGHT = 690;
-    private static final int BOARD_WIDTH = 1020;
+    private static final int BOARD_WIDTH = 1140;
     private static final int RANDOM_SEED = 1234567;
     private static final String BACKGROUND_MUSIC_PATH = "assets/mapleStory.wav";
 

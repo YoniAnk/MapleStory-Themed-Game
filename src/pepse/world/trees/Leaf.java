@@ -29,9 +29,12 @@ public class Leaf extends GameObject {
     private static final int LEAF_DROP_BOUND = 60;
     private static final int MIN_DROP_LIFETIME = 5;
     private static final int WIND_CYCLE_LENGTH = 2;
-    private static final int WIND_ANGLE = 7;
+    private static final float WIND_ANGLE = 7f;
+    private static final Vector2 LEAF_START_SIZE = new Vector2(Block.SIZE * 1.2f, Block.SIZE * 0.9f);
+    private static final Vector2 LEAF_END_SIZE = new Vector2(Block.SIZE, Block.SIZE + 1.1f);
+    private static final int MAX_TIME_TO_WAIT_TO_START = 2;
 
-    Vector2 leaf_original_position;  // TODO: Check if this need to be package private
+    private final Vector2 leaf_original_position;
     private Transition<Float> horizontalTransition;
     private Transition<Float> rotationTransition;
     private Transition<Vector2> sizeTransition;
@@ -126,35 +129,25 @@ public class Leaf extends GameObject {
      * Activates the effect of wind on the leaf
      */
     private void applyWind() {
-        // TODO: change to constants
-        int cycleLength = WIND_CYCLE_LENGTH;
-
-        // The angle
-        float startAngle = -WIND_ANGLE;
-        float endAngle = WIND_ANGLE;
-
-        // The size
-        Vector2 startSize = new Vector2(Block.SIZE * 1.2f, Block.SIZE * 0.9f);
-        Vector2 endSize = new Vector2(Block.SIZE, Block.SIZE + 1.1f);
 
         Runnable run = () -> {
             // transition for rotating the leaf
             this.rotationTransition = new Transition<>(this, this.renderer()::setRenderableAngle,
-                    startAngle,
-                    endAngle,
+                    -WIND_ANGLE,
+                    WIND_ANGLE,
                     Transition.LINEAR_INTERPOLATOR_FLOAT,
-                    cycleLength,
+                    WIND_CYCLE_LENGTH,
                     Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
 
             // transition for changing the leaf's size
             this.sizeTransition = new Transition<>(this, this::setDimensions,
-                    startSize,
-                    endSize,
+                    LEAF_START_SIZE,
+                    LEAF_END_SIZE,
                     Transition.LINEAR_INTERPOLATOR_VECTOR,
-                    cycleLength,
+                    WIND_CYCLE_LENGTH,
                     Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
         };
-        float timeToStart = new Random().nextFloat() * 2;
+        float timeToStart = new Random().nextFloat() * MAX_TIME_TO_WAIT_TO_START;
         new ScheduledTask(this, timeToStart, false, run);
     }
 }

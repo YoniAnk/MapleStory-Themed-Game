@@ -14,6 +14,7 @@ import danogl.util.Counter;
 import danogl.util.Vector2;
 import pepse.PepseGameManager;
 import pepse.world.daynight.Cloud;
+import pepse.world.trees.Leaf;
 import pepse.world.trees.Tree;
 
 import java.awt.event.KeyEvent;
@@ -69,13 +70,13 @@ public class Avatar extends GameObject {
      * @param topLeftCorner Top-left corner position of the avatar.
      * @param inputListener Listener for user input events.
      * @param imageReader   Utility for reading images from the file system.
-     * @param avatarLayer The layer of the avatar
+     * @param avatarLayer   The layer of the avatar
      */
     private Avatar(GameObjectCollection gameObjects, Vector2 topLeftCorner, Vector2 dimensions,
                    UserInputListener inputListener, ImageReader imageReader, int avatarLayer) {
         super(topLeftCorner, dimensions, null);
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
-        this.physics().setMass(MASS);
+        //this.physics().setMass(MASS);
         this.transform().setAccelerationY(GRAVITY);
         this.gameObjects = gameObjects;
         this.inputListener = inputListener;
@@ -88,11 +89,11 @@ public class Avatar extends GameObject {
     /**
      * Creates a new Avatar instance and adds it to the specified collection of game objects.
      *
-     * @param gameObjects the collection of game objects to add the avatar to
-     * @param layer the layer to add the avatar to
+     * @param gameObjects   the collection of game objects to add the avatar to
+     * @param layer         the layer to add the avatar to
      * @param topLeftCorner the position of the avatar in window coordinates (pixels)
      * @param inputListener the user input listener to use for the avatar
-     * @param imageReader the image reader to use for creating the avatar's animations
+     * @param imageReader   the image reader to use for creating the avatar's animations
      * @return the newly created Avatar instance
      */
     public static Avatar create(GameObjectCollection gameObjects,
@@ -114,6 +115,7 @@ public class Avatar extends GameObject {
 
     /**
      * Updates the avatar movement
+     *
      * @param deltaTime unused
      */
     @Override
@@ -218,6 +220,7 @@ public class Avatar extends GameObject {
 
     /**
      * getter for the energy counter
+     *
      * @return the Counter for the energy counter
      */
     public Counter getEnergy() {
@@ -226,6 +229,7 @@ public class Avatar extends GameObject {
 
     /**
      * checks if the avatar is in a jump state
+     *
      * @return boolean - true if is in jump state, else - false
      */
     private boolean isJumpState() {
@@ -234,6 +238,7 @@ public class Avatar extends GameObject {
 
     /**
      * checks if the avatar is in a Flight state
+     *
      * @return boolean - true if is in flight state, else - false
      */
     private boolean isFlightState() {
@@ -242,7 +247,8 @@ public class Avatar extends GameObject {
 
     /**
      * deals with the logic of what happen when the object enter a collision
-     * @param other The GameObject with which a collision occurred.
+     *
+     * @param other     The GameObject with which a collision occurred.
      * @param collision Information regarding this collision.
      *                  A reasonable elastic behavior can be achieved with:
      *                  setVelocity(getVelocity().flipped(collision.getNormal()));
@@ -250,8 +256,7 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
-        if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG) ||
-                other.getTag().equals(Cloud.CLOUD_TAG)) {
+        if (!other.getTag().equals(Leaf.LEAF_TAG)){
             gameObjects.removeGameObject(parachute, PepseGameManager.PARACHUTE_LAYER);
             new ScheduledTask(this, 0.01f, false, this::stopRotating);
         }
@@ -275,6 +280,7 @@ public class Avatar extends GameObject {
 
     /**
      * Creates the movable renderable of the avatar - for each state
+     *
      * @param imageReader
      * @param state
      * @return
@@ -317,6 +323,7 @@ public class Avatar extends GameObject {
 
     /**
      * Creates the parachute for the avatar when it falls
+     *
      * @return the parachute object
      */
     private GameObject createParachute() {

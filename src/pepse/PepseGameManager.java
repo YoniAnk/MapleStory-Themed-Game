@@ -8,6 +8,9 @@ import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
 import pepse.util.NumericEnergyCounter;
 import pepse.world.*;
+import pepse.world.Monsters.Monster;
+import pepse.world.Monsters.MonsterFactory;
+import pepse.world.Monsters.Monsters;
 import pepse.world.daynight.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
@@ -15,6 +18,8 @@ import pepse.world.daynight.SunHalo;
 import pepse.world.trees.Tree;
 
 import java.awt.*;
+import java.util.Objects;
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class PepseGameManager extends GameManager {
@@ -48,6 +53,10 @@ public class PepseGameManager extends GameManager {
     public static final int TOP_TERRAIN_LAYER = Layer.STATIC_OBJECTS;
     public static final int BOTTOM_TERRAIN_LAYER = Layer.STATIC_OBJECTS - 1;
 
+    /************** Monsters properties ***************/
+    public static final int MONSTERS_LAYER = Layer.DEFAULT - 1;
+
+
     public static final int PADDING = 30;
     public static final int CLOUD1_START = 650;
     public static final int CLOUD1_CYCLE_LEN = 20;
@@ -60,6 +69,7 @@ public class PepseGameManager extends GameManager {
     private Terrain terrain;
     private Avatar avatar;
     private NumericEnergyCounter energyCounter;
+    private MonsterFactory monsterFactory;
 
     /**
      * The constructor of Pepse Game Manager
@@ -92,26 +102,52 @@ public class PepseGameManager extends GameManager {
         worldLeftEnd = (int) (-windowDimensions.x());
         worldRightEnd = (int) (windowDimensions.x() * 2f);
 
-        skyCreator();
+        skyCreator(imageReader);
         terrainCreator(worldLeftEnd, worldRightEnd);
         treesCreator(worldLeftEnd + 3 * Block.SIZE, worldRightEnd - 3 * Block.SIZE);
-        gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TOP_TERRAIN_LAYER, true);
-        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
-        cloudsCreator(imageReader);
+        monsterFactory = new MonsterFactory(imageReader);
+        monstersCreator(worldLeftEnd, worldRightEnd, (int) windowDimensions.x());
+        applyLayersCollisions();
+    }
+
+    private void monstersCreator(int start, int end, int jumps) {
+        for (int x = start; x < end; x += jumps)
+            createSingleMonster(x, x + (int) windowDimensions.x());
+    }
+
+    private void createSingleMonster(int start, int end) {
+        Monsters[] monsters = Monsters.values();
+        Monsters monster = monsters[new Random(Objects.hash(RANDOM_SEED, start, end)).nextInt(monsters.length)];
+        for (int x = start + Block.SIZE; x < end - Block.SIZE * 3; x += Block.SIZE) {
+            if (!Tree.shouldPlantTree(RANDOM_SEED, x)) {
+                int y = (int) terrain.groundHeightAt(x);
+                gameObjects().addGameObject(monsterFactory.create(
+                        monster, new Vector2(x, y)), MONSTERS_LAYER);
+                return;
+            }
+        }
+
+    }
+
+    private void applyLayersCollisions() {
+        gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TOP_TERRAIN_LAYER, true);
+        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, CLOUD_LAYER, true);
-        gameObjects().addGameObject(Animal.create(Animals.pig, new Vector2(100, 200), imageReader), AVATAR_LAYER);
+        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, MONSTERS_LAYER, true);
+        gameObjects().layers().shouldLayersCollide(MONSTERS_LAYER, TOP_TERRAIN_LAYER, true);
+        gameObjects().layers().shouldLayersCollide(MONSTERS_LAYER, TRUNK_LAYER, true);
     }
 
     private void cloudsCreator(ImageReader imageReader) {
         Vector2 topLeftCornerCloud1 = new Vector2(0f, 100f);
         Vector2 topLeftCornerCloud2 = new Vector2(0f, -70f);
 
-        GameObject cloud1 = Cloud.create(gameObjects(), CLOUD_LAYER,windowDimensions, CLOUD1_CYCLE_LEN,
+        GameObject cloud1 = Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD1_CYCLE_LEN,
                 imageReader, topLeftCornerCloud1, CLOUD1_START);
 
-        GameObject cloud2 = Cloud.create(gameObjects(), CLOUD_LAYER,windowDimensions, CLOUD2_CYCLE_LEN,
+        GameObject cloud2 = Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD2_CYCLE_LEN,
                 imageReader, topLeftCornerCloud2, CLOUD2_START);
 
     }
@@ -159,7 +195,8 @@ public class PepseGameManager extends GameManager {
         }
 
         this.terrain.createInRange(start, end);
-        this.treesCreator(start + 3 * Block.SIZE, end - 3 * Block.SIZE);
+        treesCreator(start + 3 * Block.SIZE, end - 3 * Block.SIZE);
+        monstersCreator(start, end, (int) windowDimensions.x());
     }
 
     private void deleteObjectsInLayer(Direction world, int layer) {
@@ -178,6 +215,8 @@ public class PepseGameManager extends GameManager {
         deleteObjectsInLayer(world, BOTTOM_TERRAIN_LAYER);
         deleteObjectsInLayer(world, TRUNK_LAYER);
         deleteObjectsInLayer(world, LEAVES_LAYER);
+        deleteObjectsInLayer(world, MONSTERS_LAYER);
+
     }
 
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
@@ -199,11 +238,12 @@ public class PepseGameManager extends GameManager {
     /**
      * Creates a new sky and adds it to the list of game objects.
      */
-    private void skyCreator() {
+    private void skyCreator(ImageReader imageReader) {
         GameObject sky = Sky.create(gameObjects(), windowDimensions, SKY_LAYER);
         GameObject night = Night.create(gameObjects(), NIGHT_LAYER, windowDimensions, NIGHT_CYCLE_LEN);
         GameObject sun = Sun.create(gameObjects(), SUN_LAYER, windowDimensions, SUNSET_CYCLE);
         GameObject sunHalo = SunHalo.create(gameObjects(), SUN_LAYER, sun, HALO_COLOR);
+        cloudsCreator(imageReader);
     }
 
     private void treesCreator(int start, int end) {

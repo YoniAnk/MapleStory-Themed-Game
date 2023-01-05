@@ -43,11 +43,13 @@ public class Avatar extends GameObject {
     private AnimationRenderable flyRight;
 
     /**
-     * Construct a new GameObject instance.
+     * Create and return a new Avatar instance.
      *
-     * @param topLeftCorner Position of the object, in window coordinates (pixels).
-     *                      Note that (0,0) is the top-left corner of the window.
-     * @param dimensions    Width and height in window coordinates.
+     * @param gameObjects   Collection of game objects in the game.
+     * @param topLeftCorner Top-left corner position of the avatar.
+     * @param inputListener Listener for user input events.
+     * @param imageReader   Utility for reading images from the file system.
+     * @param avatarLayer The layer of the avatar
      */
     private Avatar(GameObjectCollection gameObjects, Vector2 topLeftCorner, Vector2 dimensions,
                    UserInputListener inputListener, ImageReader imageReader, int avatarLayer) {
@@ -63,6 +65,16 @@ public class Avatar extends GameObject {
         this.parachute = createParachute();
     }
 
+    /**
+     * Creates a new Avatar instance and adds it to the specified collection of game objects.
+     *
+     * @param gameObjects the collection of game objects to add the avatar to
+     * @param layer the layer to add the avatar to
+     * @param topLeftCorner the position of the avatar in window coordinates (pixels)
+     * @param inputListener the user input listener to use for the avatar
+     * @param imageReader the image reader to use for creating the avatar's animations
+     * @return the newly created Avatar instance
+     */
     public static Avatar create(GameObjectCollection gameObjects,
                                 int layer, Vector2 topLeftCorner,
                                 UserInputListener inputListener,
@@ -80,6 +92,10 @@ public class Avatar extends GameObject {
     }
 
 
+    /**
+     * Updates the avatar movement
+     * @param deltaTime unused
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
@@ -131,6 +147,9 @@ public class Avatar extends GameObject {
         updateRenderable();
     }
 
+    /**
+     * function that manage what's happen when the avatar falls.
+     */
     private void manageFreeFall() {
         parachute.setCenter(this.getCenter().subtract(new Vector2(0, parachute.getDimensions().y())));
         if (getVelocity().y() > VELOCITY_TO_START_PARACHUTE) {
@@ -142,6 +161,9 @@ public class Avatar extends GameObject {
         }
     }
 
+    /**
+     * Function that updates the energy when needed
+     */
     private void updateEnergy() {
         decreaseEnergy = !decreaseEnergy;
 
@@ -158,6 +180,9 @@ public class Avatar extends GameObject {
         }
     }
 
+    /**
+     * Function that is responsible for updating the avatar's renderable depends on avatar's direction
+     */
     private void updateRenderable() {
         if (state == State.moveRight || state == State.jumpRight)
             this.renderer().setRenderable(walkRight);
@@ -171,19 +196,37 @@ public class Avatar extends GameObject {
             this.renderer().setRenderable(flyLeft);
     }
 
+    /**
+     * getter for the energy counter
+     * @return the Counter for the energy counter
+     */
     public Counter getEnergy() {
         return energy;
     }
 
-
+    /**
+     * checks if the avatar is in a jump state
+     * @return boolean - true if is in jump state, else - false
+     */
     private boolean isJumpState() {
         return state == State.jumpNormal || state == State.jumpRight || state == State.jumpLeft;
     }
 
+    /**
+     * checks if the avatar is in a Flight state
+     * @return boolean - true if is in flight state, else - false
+     */
     private boolean isFlightState() {
         return state == State.flyNormal || state == State.flyRight || state == State.flyLeft;
     }
 
+    /**
+     * deals with the logic of what happen when the object enter a collision
+     * @param other The GameObject with which a collision occurred.
+     * @param collision Information regarding this collision.
+     *                  A reasonable elastic behavior can be achieved with:
+     *                  setVelocity(getVelocity().flipped(collision.getNormal()));
+     */
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
@@ -197,6 +240,9 @@ public class Avatar extends GameObject {
             this.state = State.moveRight;
     }
 
+    /**
+     * make the avatar stop rotating when hitting the ground (after the parachute opens)
+     */
     private void stopRotating() {
         if (horizontalTransition != null) {
             this.removeComponent(horizontalTransition);
@@ -206,6 +252,12 @@ public class Avatar extends GameObject {
     }
 
 
+    /**
+     * Creates the movable renderable of the avatar - for each state
+     * @param imageReader
+     * @param state
+     * @return
+     */
     private static AnimationRenderable createWalkAnimation(ImageReader imageReader, State state) {
         if (state == State.moveRight) {
             Renderable renderable1 = imageReader.readImage("assets/mushroom/normal/normal_right_1.png", true);
@@ -242,6 +294,10 @@ public class Avatar extends GameObject {
         return null;
     }
 
+    /**
+     * Creates the parachute for the avatar when it falls
+     * @return the parachute object
+     */
     private GameObject createParachute() {
         Renderable parachuteImg = imageReader.readImage("assets/parachute.png", true);
         Vector2 parachuteSize = new Vector2(100, 100);
@@ -250,6 +306,9 @@ public class Avatar extends GameObject {
         return new GameObject(parachutePos, parachuteSize, parachuteImg);
     }
 
+    /**
+     * makes the avatar rotate when the parachute opens
+     */
     private void applyWind() {
         this.horizontalTransition = new Transition<>(this, this.renderer()::setRenderableAngle,
                 -30f,
@@ -259,6 +318,9 @@ public class Avatar extends GameObject {
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
     }
 
+    /**
+     * Enum for all available states of the avatar
+     */
     enum State {
         moveRight,
         moveLeft,

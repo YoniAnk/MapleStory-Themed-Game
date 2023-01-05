@@ -27,6 +27,25 @@ public class Avatar extends GameObject {
     public static final Vector2 AVATAR_SIZE = new Vector2(100, 100);
     public static final float VELOCITY_TO_START_PARACHUTE = 420f;
 
+    /******************** Assets Pathes ********************************/
+    public static final String NORMAL_RIGHT_1_PATH = "assets/mushroom/normal/normal_right_1.png";
+    public static final String NORMAL_RIGHT_2_PATH = "assets/mushroom/normal/normal_right_2.png";
+    public static final String NORMAL_RIGHT_3_PATH = "assets/mushroom/normal/normal_right_3.png";
+    public static final String NORMAL_RIGHT_4_PATH = "assets/mushroom/normal/normal_right_4.png";
+    public static final String NORMAL_RIGHT_5_PATH = "assets/mushroom/normal/normal_right_5.png";
+    public static final String NORMAL_LEFT_1_PATH = "assets/mushroom/normal/normal_left_1.png";
+    public static final String NORMAL_LEFT_2_PATH = "assets/mushroom/normal/normal_left_2.png";
+    public static final String NORMAL_LEFT_3_PATH = "assets/mushroom/normal/normal_left_3.png";
+    public static final String NORMAL_LEFT_4_PATH = "assets/mushroom/normal/normal_left_4.png";
+    public static final String NORMAL_LEFT_5_PATH = "assets/mushroom/normal/normal_left_5.png";
+    public static final String FLY_RIGHT_1_PATH = "assets/mushroom/fly/FlyRight1.png";
+    public static final String FLY_RIGHT_2_PATH = "assets/mushroom/fly/FlyRight2.png";
+    public static final String FLY_LEFT_1_PATH = "assets/mushroom/fly/FlyLeft1.png";
+    public static final String FLY_LEFT_2_PATH = "assets/mushroom/fly/FlyLeft2.png";
+    public static final String FLY_NORMAL_1_PATH = "assets/mushroom/fly/FlyNormal1.png";
+    public static final String FLY_NORMAL_2_PATH = "assets/mushroom/fly/FlyNormal2.png";
+    public static final String PARACHUTE_PATH = "assets/parachute.png";
+
     private final GameObjectCollection gameObjects;
     private final int layer;
     private final GameObject parachute;
@@ -260,34 +279,34 @@ public class Avatar extends GameObject {
      */
     private static AnimationRenderable createWalkAnimation(ImageReader imageReader, State state) {
         if (state == State.moveRight) {
-            Renderable renderable1 = imageReader.readImage("assets/mushroom/normal/normal_right_1.png", true);
-            Renderable renderable2 = imageReader.readImage("assets/mushroom/normal/normal_right_2.png", true);
-            Renderable renderable3 = imageReader.readImage("assets/mushroom/normal/normal_right_3.png", true);
-            Renderable renderable4 = imageReader.readImage("assets/mushroom/normal/normal_right_4.png", true);
-            Renderable renderable5 = imageReader.readImage("assets/mushroom/normal/normal_right_5.png", true);
+            Renderable renderable1 = imageReader.readImage(NORMAL_RIGHT_1_PATH, true);
+            Renderable renderable2 = imageReader.readImage(NORMAL_RIGHT_2_PATH, true);
+            Renderable renderable3 = imageReader.readImage(NORMAL_RIGHT_3_PATH, true);
+            Renderable renderable4 = imageReader.readImage(NORMAL_RIGHT_4_PATH, true);
+            Renderable renderable5 = imageReader.readImage(NORMAL_RIGHT_5_PATH, true);
             Renderable[] renderables = {renderable1, renderable2, renderable3, renderable4, renderable5, renderable1};
             return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.moveLeft) {
-            Renderable renderable1 = imageReader.readImage("assets/mushroom/normal/normal_left_1.png", true);
-            Renderable renderable2 = imageReader.readImage("assets/mushroom/normal/normal_left_2.png", true);
-            Renderable renderable3 = imageReader.readImage("assets/mushroom/normal/normal_left_3.png", true);
-            Renderable renderable4 = imageReader.readImage("assets/mushroom/normal/normal_left_4.png", true);
-            Renderable renderable5 = imageReader.readImage("assets/mushroom/normal/normal_left_5.png", true);
+            Renderable renderable1 = imageReader.readImage(NORMAL_LEFT_1_PATH, true);
+            Renderable renderable2 = imageReader.readImage(NORMAL_LEFT_2_PATH, true);
+            Renderable renderable3 = imageReader.readImage(NORMAL_LEFT_3_PATH, true);
+            Renderable renderable4 = imageReader.readImage(NORMAL_LEFT_4_PATH, true);
+            Renderable renderable5 = imageReader.readImage(NORMAL_LEFT_5_PATH, true);
             Renderable[] renderables = {renderable1, renderable2, renderable3, renderable4, renderable5, renderable1};
             return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.flyRight) {
-            Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyRight1.png", true);
-            Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyRight2.png", true);
+            Renderable renderable1 = imageReader.readImage(FLY_RIGHT_1_PATH, true);
+            Renderable renderable2 = imageReader.readImage(FLY_RIGHT_2_PATH, true);
             Renderable[] renderables = {renderable1, renderable2};
             return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.flyLeft) {
-            Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyLeft1.png", true);
-            Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyLeft2.png", true);
+            Renderable renderable1 = imageReader.readImage(FLY_LEFT_1_PATH, true);
+            Renderable renderable2 = imageReader.readImage(FLY_LEFT_2_PATH, true);
             Renderable[] renderables = {renderable1, renderable2};
             return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         } else if (state == State.flyNormal) {
-            Renderable renderable1 = imageReader.readImage("assets/mushroom/fly/FlyNormal1.png", true);
-            Renderable renderable2 = imageReader.readImage("assets/mushroom/fly/FlyNormal2.png", true);
+            Renderable renderable1 = imageReader.readImage(FLY_NORMAL_1_PATH, true);
+            Renderable renderable2 = imageReader.readImage(FLY_NORMAL_2_PATH, true);
             Renderable[] renderables = {renderable1, renderable2};
             return new AnimationRenderable(renderables, GIF_FRAME_RATE);
         }
@@ -299,7 +318,7 @@ public class Avatar extends GameObject {
      * @return the parachute object
      */
     private GameObject createParachute() {
-        Renderable parachuteImg = imageReader.readImage("assets/parachute.png", true);
+        Renderable parachuteImg = imageReader.readImage(PARACHUTE_PATH, true);
         Vector2 parachuteSize = new Vector2(100, 100);
         Vector2 parachutePos = this.getTopLeftCorner().add(
                 new Vector2(this.getDimensions().x() / 2, parachuteSize.y()));

@@ -14,10 +14,11 @@ import java.util.function.Consumer;
 
 public class Cloud {
 
-    public static final float CLOUD_HEIGHT = 120f;
-    public static final float CLOUD_WIDTH = 250f;
+    private static final float CLOUD_HEIGHT = 120f;
+    private static final float CLOUD_WIDTH = 250f;
     public static final String CLOUD_TAG = "cloud";
-    public static final String CLOUD_PATH = "assets/cloude.png";
+    private static final String CLOUD_PATH = "assets/cloude.png";
+    private static final int XTRAVEL_RATIO = 3;
 
     public static GameObject create(GameObjectCollection gameObjects, int layer, Vector2 windowDimensions,
                                     float cycleLength, ImageReader imageReader, Vector2 topLeftCorner,
@@ -38,7 +39,7 @@ public class Cloud {
         };
 
         new Transition<>(cloud, mover,
-                startX, startX + 3*windowDimensions.x(), Transition.LINEAR_INTERPOLATOR_FLOAT,
+                startX, startX + XTRAVEL_RATIO *windowDimensions.x(), Transition.LINEAR_INTERPOLATOR_FLOAT,
                 cycleLength, Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
 
         return cloud;

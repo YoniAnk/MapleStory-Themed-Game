@@ -21,17 +21,17 @@ public class Leaf extends GameObject {
     private static final float LEAF_FALLING_SPEED = 70;
     private static final float LEAF_WIND_SPEED = 25f;
     private static final float EPSILON_WAIT_TIME = 0.01f;
-    public static final int DIE_TIME_BOUND = 15;
-    public static final int MIN_DIE_TIME = 5;
-    public static final float WIND_TRANSITION_TIME = 1f;
-    public static final float EPSILON_TIME_FOR_REVIVE = 0.01f;
-    public static final float OPAQUENESS_AFTER_DIE = 1f;
-    public static final int LEAF_DROP_BOUND = 60;
-    public static final int MIN_DROP_LIFETIME = 5;
-    public static final int WIND_CYCLE_LENGTH = 2;
-    public static final int WIND_ANGLE = 7;
+    private static final int DIE_TIME_BOUND = 15;
+    private static final int MIN_DIE_TIME = 5;
+    private static final float WIND_TRANSITION_TIME = 1f;
+    private static final float EPSILON_TIME_FOR_REVIVE = 0.01f;
+    private static final float OPAQUENESS_AFTER_DIE = 1f;
+    private static final int LEAF_DROP_BOUND = 60;
+    private static final int MIN_DROP_LIFETIME = 5;
+    private static final int WIND_CYCLE_LENGTH = 2;
+    private static final int WIND_ANGLE = 7;
 
-    Vector2 leaf_original_position;
+    Vector2 leaf_original_position;  // TODO: Check if this need to be package private
     private Transition<Float> horizontalTransition;
     private Transition<Float> rotationTransition;
     private Transition<Vector2> sizeTransition;

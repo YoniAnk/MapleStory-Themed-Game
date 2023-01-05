@@ -19,6 +19,17 @@ public class Leaf extends GameObject {
     private static final int FADEOUT_TIME = 4;
     public static final String LEAF_TAG = "leaf";
     private static final float LEAF_FALLING_SPEED = 70;
+    private static final float LEAF_WIND_SPEED = 25f;
+    private static final float EPSILON_WAIT_TIME = 0.01f;
+    public static final int DIE_TIME_BOUND = 15;
+    public static final int MIN_DIE_TIME = 5;
+    public static final float WIND_TRANSITION_TIME = 1f;
+    public static final float EPSILON_TIME_FOR_REVIVE = 0.01f;
+    public static final float OPAQUENESS_AFTER_DIE = 1f;
+    public static final int LEAF_DROP_BOUND = 60;
+    public static final int MIN_DROP_LIFETIME = 5;
+    public static final int WIND_CYCLE_LENGTH = 2;
+    public static final int WIND_ANGLE = 7;
 
     Vector2 leaf_original_position;
     private Transition<Float> horizontalTransition;
@@ -62,7 +73,7 @@ public class Leaf extends GameObject {
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
         if (horizontalTransition != null && other.getTag().equals(Terrain.TERRAIN_TAG))
-            new ScheduledTask(this, 0.01f, false, this::stopLeaf);
+            new ScheduledTask(this, EPSILON_WAIT_TIME, false, this::stopLeaf);
     }
 
     /**
@@ -73,13 +84,13 @@ public class Leaf extends GameObject {
      */
     private void startFalling() {
         this.renderer().fadeOut(FADEOUT_TIME);
-        int die_time = new Random().nextInt(15) + 5;
+        int die_time = new Random().nextInt(DIE_TIME_BOUND) + MIN_DIE_TIME;
         this.transform().setVelocityY(LEAF_FALLING_SPEED);
         this.horizontalTransition = new Transition<>(this, this.transform()::setVelocityX,
-                -25f,
-                25f,
+                -LEAF_WIND_SPEED,
+                LEAF_WIND_SPEED,
                 Transition.LINEAR_INTERPOLATOR_FLOAT,
-                1f,
+                WIND_TRANSITION_TIME,
                 Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
         new ScheduledTask(this, die_time, false, this::returnToLife);
     }
@@ -91,7 +102,8 @@ public class Leaf extends GameObject {
      * @see #applyWind()
      */
     private void returnToLife() {
-        new ScheduledTask(this, 0.01f, false, ()->this.renderer().setOpaqueness(1f));
+        new ScheduledTask(this, EPSILON_TIME_FOR_REVIVE,
+                false, ()->this.renderer().setOpaqueness(OPAQUENESS_AFTER_DIE));
         this.setTopLeftCorner(leaf_original_position);
         this.transform().setVelocity(0,0);
         applyLeafDropper();
@@ -105,12 +117,8 @@ public class Leaf extends GameObject {
      * @see #startFalling()
      */
     private void applyLeafDropper() {
-        // TODO:
-        //      1. fix fadeOut
-        //      2. make the leaf layer change when drops so collision check will be more efficient
-        //      3. end the fall on hit (save transition in Leaf and delete on collision)
 
-        int lifeTime = new Random().nextInt(60) + 5;
+        int lifeTime = new Random().nextInt(LEAF_DROP_BOUND) + MIN_DROP_LIFETIME;
         new ScheduledTask(this, lifeTime, false, this::startFalling);
     }
 
@@ -119,11 +127,11 @@ public class Leaf extends GameObject {
      */
     private void applyWind() {
         // TODO: change to constants
-        int cycleLength = 2;
+        int cycleLength = WIND_CYCLE_LENGTH;
 
         // The angle
-        float startAngle = -7;
-        float endAngle = 7;
+        float startAngle = -WIND_ANGLE;
+        float endAngle = WIND_ANGLE;
 
         // The size
         Vector2 startSize = new Vector2(Block.SIZE * 1.2f, Block.SIZE * 0.9f);
@@ -147,6 +155,6 @@ public class Leaf extends GameObject {
                     Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
         };
         float timeToStart = new Random().nextFloat() * 2;
-        new ScheduledTask(this, timeToStart, false, run);   // TODO: fix random to use seed(?)
+        new ScheduledTask(this, timeToStart, false, run);
     }
 }

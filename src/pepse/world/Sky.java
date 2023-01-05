@@ -8,6 +8,10 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * Represents the sky object in the game.
+ * has fixed color for the sky.
+ */
 public class Sky {
     private static final Color BASIC_SKY_COLOR = Color.decode("#80C6E5");
 

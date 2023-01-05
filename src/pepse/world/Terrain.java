@@ -11,7 +11,11 @@ import pepse.util.NoiseGenerator;
 
 import java.awt.*;
 
-
+/**
+ * The Terrain class represents the terrain in the game.
+ * It is responsible for generating the blocks that make up the terrain and adding them
+ * to the game object collection.
+ */
 public class Terrain {
 
     /********** Terrain Constants  ***************/
@@ -19,7 +23,7 @@ public class Terrain {
     private static final double TERRAIN_HEIGHT_RATIO = 0.666;
     private static final Color BASE_GROUND_COLOR = new Color(212, 123, 74);
 
-    private static final int TERRAIN_DEPTH = 20;  //20
+    private static final int TERRAIN_DEPTH = 20;
 
 
     /*************** Variables *****************/
@@ -29,6 +33,13 @@ public class Terrain {
     private final NoiseGenerator noiseGenerator;
     private final Vector2 windowsDimensions;
 
+    /**
+     * Constructs a new Terrain instance.
+     * @param gameObjects The game object collection to which the terrain blocks will be added.
+     * @param groundLayer The layer at which the terrain blocks should be added in the game object collection.
+     * @param windowDimensions The dimensions of the game window.
+     * @param seed The seed for randomization
+     */
     public Terrain(GameObjectCollection gameObjects, int groundLayer, Vector2 windowDimensions, int seed) {
         this.gameObjects = gameObjects;
         this.groundLayer = groundLayer;
@@ -38,6 +49,11 @@ public class Terrain {
         this.noiseGenerator = new NoiseGenerator(seed);
     }
 
+    /**
+     * Returns the height of the ground at the given x-coordinate.
+     * @param x The x-coordinate for which to get the ground height.
+     * @return The height of the ground at the given x-coordinate.
+     */
     public float groundHeightAt(float x) {
         int blockSize = 30; // size of each block in pixels
         int frequency = 50;
@@ -50,6 +66,11 @@ public class Terrain {
         return (float) Math.floor(height / Block.SIZE) * Block.SIZE;
     }
 
+    /**
+     * Creates the terrain blocks in the given x-coordinate range.
+     * @param minX The minimum x-coordinate for the terrain blocks.
+     * @param maxX The maximum x-coordinate for the terrain blocks.
+     */
     public void createInRange(int minX, int maxX) {
         for (int curX = minX; curX < maxX; curX += Block.SIZE) {
             float curY = groundHeightAt(curX);

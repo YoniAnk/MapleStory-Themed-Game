@@ -35,6 +35,7 @@ public class PepseGameManager extends GameManager {
 
     /************** day/night properties ***************/
     public static final int SUN_LAYER = Layer.BACKGROUND;
+    public static final int CLOUD_LAYER = SUN_LAYER + 1;
     public static final int SKY_LAYER = Layer.BACKGROUND;
     public static final int NIGHT_LAYER = Layer.FOREGROUND;
 
@@ -51,6 +52,10 @@ public class PepseGameManager extends GameManager {
     public static final int BOTTOM_TERRAIN_LAYER = Layer.STATIC_OBJECTS - 1;
 
     public static final int PADDING = 30;
+    public static final int CLOUD1_START = 650;
+    public static final int CLOUD1_CYCLE_LEN = 20;
+    public static final int CLOUD2_CYCLE_LEN = 25;
+    public static final int CLOUD2_START = 20;
 
     /************ Class attributes ***********/
     private int worldLeftEnd, worldRightEnd;
@@ -97,9 +102,20 @@ public class PepseGameManager extends GameManager {
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
-        GameObject cloude = Cloud.create(gameObjects(),SUN_LAYER+1,windowDimensions,8,imageReader,
-                new Vector2(0f, 100f), 50);
-        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, SUN_LAYER+1, true);
+        cloudsCreator(imageReader);
+        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, CLOUD_LAYER, true);
+
+    }
+
+    private void cloudsCreator(ImageReader imageReader) {
+        Vector2 topLeftCornerCloud1 = new Vector2(0f, 100f);
+        Vector2 topLeftCornerCloud2 = new Vector2(0f, -70f);
+
+        GameObject cloud1 = Cloud.create(gameObjects(), CLOUD_LAYER,windowDimensions, CLOUD1_CYCLE_LEN,
+                imageReader, topLeftCornerCloud1, CLOUD1_START);
+
+        GameObject cloud2 = Cloud.create(gameObjects(), CLOUD_LAYER,windowDimensions, CLOUD2_CYCLE_LEN,
+                imageReader, topLeftCornerCloud2, CLOUD2_START);
 
     }
 

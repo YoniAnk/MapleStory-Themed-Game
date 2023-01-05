@@ -13,6 +13,7 @@ import danogl.gui.rendering.Renderable;
 import danogl.util.Counter;
 import danogl.util.Vector2;
 import pepse.PepseGameManager;
+import pepse.world.daynight.Cloud;
 import pepse.world.trees.Tree;
 
 import java.awt.event.KeyEvent;
@@ -249,7 +250,8 @@ public class Avatar extends GameObject {
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
-        if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG)) {
+        if (other.getTag().equals(Terrain.TERRAIN_TAG) || other.getTag().equals(Tree.TRUNK_TAG) ||
+                other.getTag().equals(Cloud.CLOUD_TAG)) {
             gameObjects.removeGameObject(parachute, PepseGameManager.PARACHUTE_LAYER);
             new ScheduledTask(this, 0.01f, false, this::stopRotating);
         }

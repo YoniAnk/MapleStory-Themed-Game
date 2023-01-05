@@ -10,6 +10,8 @@ import danogl.gui.rendering.ImageRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 
+import java.util.function.Consumer;
+
 public class Cloud {
 
     public static final float CLOUD_HEIGHT = 120f;
@@ -31,19 +33,14 @@ public class Cloud {
         cloud.physics().preventIntersectionsFromDirection(Vector2.ZERO);
         cloud.physics().setMass(GameObjectPhysics.IMMOVABLE_MASS);
 
-        CloudMover mover = movement -> {
+        Consumer<Float> mover = movement -> {
             cloud.setCenter(new Vector2(movement, cloud.getCenter().y()));
         };
 
-        new Transition<>(cloud, mover::move,
+        new Transition<>(cloud, mover,
                 startX, startX + 3*windowDimensions.x(), Transition.LINEAR_INTERPOLATOR_FLOAT,
                 cycleLength, Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
 
         return cloud;
     }
-}
-
-@FunctionalInterface
-interface CloudMover{
-    void move(float movement);
 }

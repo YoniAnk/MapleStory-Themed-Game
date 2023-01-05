@@ -47,6 +47,7 @@ public class Avatar extends GameObject {
     public static final String FLY_NORMAL_1_PATH = "assets/mushroom/fly/FlyNormal1.png";
     public static final String FLY_NORMAL_2_PATH = "assets/mushroom/fly/FlyNormal2.png";
     public static final String PARACHUTE_PATH = "assets/parachute.png";
+    public static final float EPSILON_WAIT_TIME = 0.01f;
 
     private final GameObjectCollection gameObjects;
     private final int layer;
@@ -258,7 +259,7 @@ public class Avatar extends GameObject {
         super.onCollisionEnter(other, collision);
         if (!other.getTag().equals(Leaf.LEAF_TAG)){
             gameObjects.removeGameObject(parachute, PepseGameManager.PARACHUTE_LAYER);
-            new ScheduledTask(this, 0.01f, false, this::stopRotating);
+            new ScheduledTask(this, EPSILON_WAIT_TIME, false, this::stopRotating);
         }
         if (state == State.flyLeft || state == State.jumpLeft || state == State.moveLeft)
             this.state = State.moveLeft;

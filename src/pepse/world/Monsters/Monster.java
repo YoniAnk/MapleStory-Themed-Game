@@ -14,7 +14,7 @@ public class Monster extends GameObject {
     private static final int GRAVITY = 500;
     private static final int MAX_TIME_UNTIL_JUMP = 8;
     private static final int JUMP_SPEED = 300;
-    private static final int MOVEMENT_SPEED = 250;
+    private static final int MOVEMENT_SPEED = 200;
     private static final Random random = new Random();
     public static final float WAIT_TIME = 0.3f;
     public final Renderable rightImg;

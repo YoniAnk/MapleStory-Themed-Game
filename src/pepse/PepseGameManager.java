@@ -54,8 +54,7 @@ public class PepseGameManager extends GameManager {
     public static final int BOTTOM_TERRAIN_LAYER = Layer.STATIC_OBJECTS - 1;
 
     /************** Monsters properties ***************/
-    public static final int MONSTERS_LAYER = Layer.DEFAULT - 1;
-
+    public static final int MONSTERS_LAYER = 2;
 
     public static final int PADDING = 30;
     public static final int CLOUD1_START = 650;

@@ -10,7 +10,7 @@ public class Block extends GameObject {
     public static final int SIZE = 30;
 
     /**
-     * Construct a new GameObject instance.
+     * Construct a new Block instance.
      *
      * @param topLeftCorner Position of the object, in window coordinates (pixels).
      *                      Note that (0,0) is the top-left corner of the window.

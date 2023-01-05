@@ -91,7 +91,7 @@ public class PepseGameManager extends GameManager {
 
         skyCreator();
         terrainCreator(worldLeftEnd, worldRightEnd);
-        treesCreator(worldLeftEnd, worldRightEnd);
+        treesCreator(worldLeftEnd + 3 * Block.SIZE, worldRightEnd - 3 * Block.SIZE);
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TOP_TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
@@ -142,7 +142,7 @@ public class PepseGameManager extends GameManager {
         }
 
         this.terrain.createInRange(start, end);
-        this.treesCreator(start, end);
+        this.treesCreator(start + 3 * Block.SIZE, end - 3 * Block.SIZE);
     }
 
     private void deleteObjectsInLayer(Direction world, int layer) {

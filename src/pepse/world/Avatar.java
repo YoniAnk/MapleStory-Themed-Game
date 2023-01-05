@@ -48,9 +48,9 @@ public class Avatar extends GameObject {
     public static final String FLY_NORMAL_2_PATH = "assets/mushroom/fly/FlyNormal2.png";
     public static final String PARACHUTE_PATH = "assets/parachute.png";
     public static final float EPSILON_WAIT_TIME = 0.01f;
+    public static final int JUMP_SPEED = 400;
 
     private final GameObjectCollection gameObjects;
-    private final int layer;
     private final GameObject parachute;
     private final Counter energy;
     private final UserInputListener inputListener;
@@ -71,18 +71,16 @@ public class Avatar extends GameObject {
      * @param topLeftCorner Top-left corner position of the avatar.
      * @param inputListener Listener for user input events.
      * @param imageReader   Utility for reading images from the file system.
-     * @param avatarLayer   The layer of the avatar
      */
     private Avatar(GameObjectCollection gameObjects, Vector2 topLeftCorner, Vector2 dimensions,
-                   UserInputListener inputListener, ImageReader imageReader, int avatarLayer) {
+                   UserInputListener inputListener, ImageReader imageReader) {
         super(topLeftCorner, dimensions, null);
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
-        //this.physics().setMass(MASS);
+        this.physics().setMass(MASS);
         this.transform().setAccelerationY(GRAVITY);
         this.gameObjects = gameObjects;
         this.inputListener = inputListener;
         this.imageReader = imageReader;
-        this.layer = avatarLayer;
         this.energy = new Counter(MAX_ENERGY);
         this.parachute = createParachute();
     }
@@ -102,7 +100,7 @@ public class Avatar extends GameObject {
                                 UserInputListener inputListener,
                                 ImageReader imageReader) {
 
-        Avatar avatar = new Avatar(gameObjects, topLeftCorner, AVATAR_SIZE, inputListener, imageReader, layer);
+        Avatar avatar = new Avatar(gameObjects, topLeftCorner, AVATAR_SIZE, inputListener, imageReader);
         avatar.walkLeft = createWalkAnimation(imageReader, State.moveLeft);
         avatar.walkRight = createWalkAnimation(imageReader, State.moveRight);
         avatar.flyLeft = createWalkAnimation(imageReader, State.flyLeft);
@@ -157,14 +155,13 @@ public class Avatar extends GameObject {
 
         if (inputListener.isKeyPressed(KeyEvent.VK_SPACE) && !isJumpState() && !isFlightState()) {
             state = State.jumpNormal;
-            this.transform().setVelocityY(-MOVEMENT_SPEED * 1.5f);
+            this.transform().setVelocityY(-JUMP_SPEED);
         }
         if (!inputListener.isKeyPressed(KeyEvent.VK_SPACE) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_SHIFT) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_LEFT) &&
                 !inputListener.isKeyPressed(KeyEvent.VK_RIGHT))
             this.transform().setVelocityX(0);
-
 
         updateEnergy();
         updateRenderable();

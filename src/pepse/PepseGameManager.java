@@ -107,7 +107,7 @@ public class PepseGameManager extends GameManager {
         treesCreator(worldLeftEnd + 3 * Block.SIZE, worldRightEnd - 3 * Block.SIZE);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
-        monsterFactory = new MonsterFactory(imageReader);
+        monsterFactory = new MonsterFactory(imageReader, RANDOM_SEED);
         monstersCreator(worldLeftEnd, worldRightEnd, (int) windowDimensions.x());
         applyLayersCollisions();
     }
@@ -118,13 +118,11 @@ public class PepseGameManager extends GameManager {
     }
 
     private void createSingleMonster(int start, int end) {
-        Monsters[] monsters = Monsters.values();
-        Monsters monster = monsters[new Random(Objects.hash(RANDOM_SEED, start, end)).nextInt(monsters.length)];
         for (int x = start + Block.SIZE; x < end - Block.SIZE * 3; x += Block.SIZE) {
             if (!Tree.shouldPlantTree(RANDOM_SEED, x)) {
                 int y = (int) terrain.groundHeightAt(x);
-                gameObjects().addGameObject(monsterFactory.create(
-                        monster, new Vector2(x, y)), MONSTERS_LAYER);
+                gameObjects().addGameObject(
+                        monsterFactory.getRandomMonster(x, new Vector2(x, y)), MONSTERS_LAYER);
                 return;
             }
         }

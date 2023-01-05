@@ -19,14 +19,14 @@ import pepse.world.trees.Tree;
 import java.awt.event.KeyEvent;
 
 public class Avatar extends GameObject {
-    public static final int MASS = 100;
+    private static final int MASS = 100;
     private static final int MOVEMENT_SPEED = 250;
     private static final int MAX_ENERGY = 100;
-    public static final int GRAVITY = 500;
-    public static final float MAX_FALLING_SPEED = 350f;
-    public static final float GIF_FRAME_RATE = 0.1f;
-    public static final Vector2 AVATAR_SIZE = new Vector2(100, 100);
-    public static final float VELOCITY_TO_START_PARACHUTE = 420f;
+    private static final int GRAVITY = 500;
+    private static final float MAX_FALLING_SPEED = 350f;
+    private static final float GIF_FRAME_RATE = 0.1f;
+    private static final Vector2 AVATAR_SIZE = new Vector2(100, 100);
+    private static final float VELOCITY_TO_START_PARACHUTE = 420f;
 
     /******************** Assets Pathes ********************************/
     public static final String NORMAL_RIGHT_1_PATH = "assets/mushroom/normal/normal_right_1.png";

@@ -7,10 +7,7 @@ import danogl.gui.*;
 import danogl.gui.rendering.Camera;
 import danogl.util.Vector2;
 import pepse.util.NumericEnergyCounter;
-import pepse.world.Avatar;
-import pepse.world.Block;
-import pepse.world.Sky;
-import pepse.world.Terrain;
+import pepse.world.*;
 import pepse.world.daynight.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
@@ -104,7 +101,7 @@ public class PepseGameManager extends GameManager {
         numericEnergyCreator();
         cloudsCreator(imageReader);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, CLOUD_LAYER, true);
-
+        gameObjects().addGameObject(Animal.create(Animals.pig, new Vector2(100, 200), imageReader), AVATAR_LAYER);
     }
 
     private void cloudsCreator(ImageReader imageReader) {

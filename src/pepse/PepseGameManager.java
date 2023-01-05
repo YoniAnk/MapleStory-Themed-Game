@@ -11,6 +11,7 @@ import pepse.world.Avatar;
 import pepse.world.Block;
 import pepse.world.Sky;
 import pepse.world.Terrain;
+import pepse.world.daynight.Cloud;
 import pepse.world.daynight.Night;
 import pepse.world.daynight.Sun;
 import pepse.world.daynight.SunHalo;
@@ -96,6 +97,9 @@ public class PepseGameManager extends GameManager {
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
+        GameObject cloude = Cloud.create(gameObjects(),SUN_LAYER+1,windowDimensions,8,imageReader,
+                new Vector2(0f, 100f), 50);
+        gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, SUN_LAYER+1, true);
 
     }
 

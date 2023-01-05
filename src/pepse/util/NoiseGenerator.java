@@ -3,23 +3,41 @@ package pepse.util;
 import java.util.Random;
 
 /**
- * <a href="https://gist.github.com/alksily/7a85a1898e65c936f861ee93516e397d">...</a>
+ * This class represents a noise generator. It has two constructors: one that takes in a double seed value,
+ * and another that generates a random seed value using a Gaussian distribution. The class has a method
+ * called {@link #noise(double, double, double)} that takes in three double values representing the x, y,
+ * and z coordinates, and returns a double value representing the noise at those coordinates. It also has
+ * a method called {@link #smoothNoise(double, double, double)} that takes in the same three coordinates
+ * and returns a smoothed version of the noise at those coordinates. The class has a method called
+ * {@link #setSeed(double)} which allows the user to set the seed value, and a method called
+ * {@link #getSeed()} which returns the current seed value.
+ * link for source - <a href="https://gist.github.com/alksily/7a85a1898e65c936f861ee93516e397d">...</a>
  **/
 public class NoiseGenerator {
     private double seed;
     private long default_size;
     private int[] p;
 
+    /**
+     * Constructs a new noise generator with the given seed value.
+     *
+     * @param seed the seed value to use for the noise generator
+     */
     public NoiseGenerator(double seed) {
         this.seed = seed;
         init();
     }
 
+    /**
+     * Constructs a new noise generator with a random seed value generated using a Gaussian distribution.
+     */
     public NoiseGenerator() {
         this.seed = new Random().nextGaussian() * 255;
         init();
     }
-
+    /**
+     * Initializes the permutation array used in the noise generation process.
+     */
     private void init() {
         // Initialize the permutation array.
         this.p = new int[512];
@@ -52,41 +70,33 @@ public class NoiseGenerator {
 
     }
 
+    /**
+     * Sets the seed value for the noise generator.
+     *
+     * @param seed the seed value to set
+     */
     public void setSeed(double seed) {
+
         this.seed = seed;
     }
 
+    /**
+     * Returns the current seed value of the noise generator.
+     *
+     * @return the current seed value
+     */
     public double getSeed() {
         return this.seed;
     }
 
-    public double noise(double x) {
-        double value = 0.0;
-        double size = default_size;
-        double initialSize = size;
-
-        while (size >= 1) {
-            value += smoothNoise((x / size), (0f / size), (0f / size)) * size;
-            size /= 2.0;
-        }
-
-        return value / initialSize;
-    }
-
-    public double noise(double x, double y) {
-        double value = 0.0;
-        double size = default_size;
-        double initialSize = size;
-
-        while (size >= 1) {
-            value += smoothNoise((x / size), (y / size), (0f / size)) * size;
-            size /= 2.0;
-        }
-
-        return value / initialSize;
-    }
-
-
+    /**
+     * Calculates and returns the noise at the given x, y, and z coordinates.
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param z the z coordinate
+     * @return the noise at the given coordinates
+     */
     public double noise(double x, double y, double z) {
         double value = 0.0;
         double size = default_size;
@@ -100,6 +110,14 @@ public class NoiseGenerator {
         return value / initialSize;
     }
 
+    /**
+     * Calculates and returns a smoothed version of the noise at the given x, y, and z coordinates.
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param z the z coordinate
+     * @return the smoothed noise at the given coordinates
+     */
     public double smoothNoise(double x, double y, double z) {
         // Offset each coordinate by the seed value
         x += this.seed;
@@ -135,14 +153,37 @@ public class NoiseGenerator {
                                 grad(p[BB + 1], x - 1, y - 1, z - 1))));
     }
 
+    /**
+     * Calculates and returns the fade curve for the given value.
+     *
+     * @param t the value to calculate the fade curve for
+     * @return the fade curve for the given value
+     */
     private double fade(double t) {
         return t * t * t * (t * (t * 6 - 15) + 10);
     }
 
+    /**
+     * Performs linear interpolation between the given values.
+     *
+     * @param t the interpolation factor
+     * @param a the first value
+     * @param b the second value
+     * @return the interpolated value
+     */
     private double lerp(double t, double a, double b) {
         return a + t * (b - a);
     }
 
+    /**
+     * Calculates and returns the gradient for the given hash code and coordinates.
+     *
+     * @param hash the hash code
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param z the z coordinate
+     * @return the gradient for the given hash code and coordinates
+     */
     private double grad(int hash, double x, double y, double z) {
         int h = hash & 15; // CONVERT LO 4 BITS OF HASH CODE
         double u = h < 8 ? x : y, // INTO 12 GRADIENT DIRECTIONS.

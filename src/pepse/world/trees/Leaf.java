@@ -11,6 +11,10 @@ import pepse.world.Terrain;
 
 import java.util.Random;
 
+/**
+ * The Leaf class represents a leaf object in a game. It is a rectangular-shaped object that falls from
+ * a tree and is affected by wind. It also has a fading effect when it reaches the ground.
+ */
 public class Leaf extends GameObject {
     private static final int FADEOUT_TIME = 4;
     public static final String LEAF_TAG = "leaf";
@@ -47,14 +51,26 @@ public class Leaf extends GameObject {
         this.transform().setVelocity(0, 0);
     }
 
+    /**
+     * Make things happen when object started a collision
+     * @param other The GameObject with which a collision occurred.
+     * @param collision Information regarding this collision.
+     *                  A reasonable elastic behavior can be achieved with:
+     *                  setVelocity(getVelocity().flipped(collision.getNormal()));
+     */
     @Override
     public void onCollisionEnter(GameObject other, Collision collision) {
         super.onCollisionEnter(other, collision);
         if (horizontalTransition != null && other.getTag().equals(Terrain.TERRAIN_TAG))
             new ScheduledTask(this, 0.01f, false, this::stopLeaf);
-            return;
     }
 
+    /**
+     * Causes the leaf to start falling and sets up a task to return the leaf to its original position after
+     * a certain amount of time has passed.
+     *
+     * @see #returnToLife()
+     */
     private void startFalling() {
         this.renderer().fadeOut(FADEOUT_TIME);
         int die_time = new Random().nextInt(15) + 5;
@@ -68,6 +84,12 @@ public class Leaf extends GameObject {
         new ScheduledTask(this, die_time, false, this::returnToLife);
     }
 
+    /**
+     * Returns the leaf to its original position and re-applies the leaf dropper and wind effects to it.
+     *
+     * @see #applyLeafDropper()
+     * @see #applyWind()
+     */
     private void returnToLife() {
         new ScheduledTask(this, 0.01f, false, ()->this.renderer().setOpaqueness(1f));
         this.setTopLeftCorner(leaf_original_position);
@@ -76,6 +98,12 @@ public class Leaf extends GameObject {
         applyWind();
     }
 
+    /**
+     * Applies the leaf dropper effect to the leaf. This causes the leaf to fall from the tree after a
+     * certain amount of time has passed.
+     *
+     * @see #startFalling()
+     */
     private void applyLeafDropper() {
         // TODO:
         //      1. fix fadeOut

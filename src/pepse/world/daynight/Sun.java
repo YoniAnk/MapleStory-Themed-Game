@@ -10,6 +10,11 @@ import danogl.util.Vector2;
 
 import java.awt.*;
 
+/**
+ * The Sun class represents the sun object in a game. It is an oval-shaped object that rotates around
+ * the center of the game window over a given time period, creating a day-night cycle effect.
+
+ */
 public class Sun {
     private static final String SUN_TAG = "sun";
     private static final Color SUN_COLOR = Color.YELLOW;
@@ -20,6 +25,15 @@ public class Sun {
     private static final float END_SUN_ANGLE = 270;
     public static Vector2 circleCenter;
 
+    /**
+     * Creates a new sun object and adds it to the specified game object collection.
+     *
+     * @param gameObjects the game object collection to add the sun object to
+     * @param layer the layer to add the sun object to in the game object collection
+     * @param windowDimensions the dimensions of the game window
+     * @param cycleLength the length of the day-night cycle in seconds
+     * @return the newly created sun object
+     */
     public static GameObject create(GameObjectCollection gameObjects, int layer, Vector2 windowDimensions,
                                     float cycleLength) {
         Renderable sunRenderable = new OvalRenderable(SUN_COLOR);

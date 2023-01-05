@@ -13,6 +13,9 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * Class for the trees in the game, it has a trunk and leaves
+ */
 public class Tree {
 
     /*********** General ***********/

@@ -22,10 +22,10 @@ public class Avatar extends GameObject {
     private static final int MOVEMENT_SPEED = 250;
     private static final int MAX_ENERGY = 100;
     private static final int GRAVITY = 500;
-    private static final float MAX_FALLING_SPEED = 350f;
     private static final float GIF_FRAME_RATE = 0.1f;
     private static final Vector2 AVATAR_SIZE = new Vector2(100, 100);
-    private static final float VELOCITY_TO_START_PARACHUTE = 420f;
+    private static final float MAX_FALLING_SPEED = 400;
+    private static final float VELOCITY_TO_START_PARACHUTE = 440f;
     private static final int JUMP_SPEED = 420;
 
 

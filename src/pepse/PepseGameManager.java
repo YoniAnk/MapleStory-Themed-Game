@@ -110,19 +110,25 @@ public class PepseGameManager extends GameManager {
         skyCreator(imageReader);
         terrainCreator(worldLeftEnd, worldRightEnd);
         tree = new Tree(gameObjects(), RANDOM_SEED, terrain, LEAVES_LAYER, TRUNK_LAYER);
-        treesCreator(worldLeftEnd + EPSILON * Block.SIZE, worldRightEnd - EPSILON * Block.SIZE);
+        tree.createInRange(worldLeftEnd + EPSILON * Block.SIZE, worldRightEnd - EPSILON * Block.SIZE);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
         monsterFactory = new MonsterFactory(imageReader, RANDOM_SEED);
-        monstersCreator(worldLeftEnd, worldRightEnd, (int) windowDimensions.x());
+        initialMonstersCreator(worldLeftEnd, worldRightEnd, (int) windowDimensions.x());
         applyLayersCollisions();
     }
 
-    private void monstersCreator(int start, int end, int jumps) {
+    /**
+     * Creates the monsters in all the current game world
+     */
+    private void initialMonstersCreator(int start, int end, int jumps) {
         for (int x = start; x < end; x += jumps)
-            createSingleMonster(x, x + (int) windowDimensions.x());
+            createSingleMonster(x, x + jumps);
     }
 
+    /**
+     * Creates a new monster inside a given range
+     */
     private void createSingleMonster(int start, int end) {
         for (int x = start + Block.SIZE; x < end - Block.SIZE * EPSILON; x += Block.SIZE) {
             if (!Tree.shouldPlantTree(RANDOM_SEED, x)) {
@@ -134,6 +140,9 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Sets the collision behaviour for all the layers that should collide
+     */
     private void applyLayersCollisions() {
         gameObjects().layers().shouldLayersCollide(LEAVES_LAYER, TOP_TERRAIN_LAYER, true);
         gameObjects().layers().shouldLayersCollide(AVATAR_LAYER, TRUNK_LAYER, true);
@@ -143,6 +152,9 @@ public class PepseGameManager extends GameManager {
         gameObjects().layers().shouldLayersCollide(MONSTERS_LAYER, TRUNK_LAYER, true);
     }
 
+    /**
+     * Creates the clouds
+     */
     private void cloudsCreator(ImageReader imageReader) {
         Cloud.create(gameObjects(), CLOUD_LAYER, windowDimensions, CLOUD1_CYCLE_LEN,
                 imageReader, START_POSITION_CLOUD_1, CLOUD1_START);
@@ -150,6 +162,9 @@ public class PepseGameManager extends GameManager {
                 imageReader, START_POSITION_CLOUD_2, CLOUD2_START);
     }
 
+    /**
+     * Creates the energy text
+     */
     private void numericEnergyCreator() {
         energyCounter = new NumericEnergyCounter(
                 new Vector2(windowDimensions.x() * TEXT_PADDING, windowDimensions.y() * TEXT_PADDING),
@@ -157,6 +172,11 @@ public class PepseGameManager extends GameManager {
         gameObjects().addGameObject(energyCounter, NUMERIC_ENERGY_LAYER);
     }
 
+    /**
+     * Update the game stats every frame
+     *
+     * @param deltaTime The time past from last update
+     */
     @Override
     public void update(float deltaTime) {
         super.update(deltaTime);
@@ -180,6 +200,11 @@ public class PepseGameManager extends GameManager {
         }
     }
 
+    /**
+     * Creates a new world in the game
+     *
+     * @param world The world side to create the new world
+     */
     private void createWorld(Direction world) {
         int start, end;
 
@@ -192,10 +217,13 @@ public class PepseGameManager extends GameManager {
         }
 
         this.terrain.createInRange(start, end);
-        treesCreator(start + 3 * Block.SIZE, end - EPSILON * Block.SIZE);
-        monstersCreator(start, end, (int) windowDimensions.x());
+        tree.createInRange(start + EPSILON * Block.SIZE, end - EPSILON * Block.SIZE);
+        createSingleMonster(start, end);
     }
 
+    /**
+     * Deletes all the object in a given layer and world
+     */
     private void deleteObjectsInLayer(Direction world, int layer) {
         Consumer<GameObject> deleteTerrain = (object) -> {
             if (world == Direction.left) {
@@ -207,6 +235,9 @@ public class PepseGameManager extends GameManager {
         gameObjects().objectsInLayer(layer).forEach(deleteTerrain);
     }
 
+    /**
+     * Deletes all the object in a given world
+     */
     private void deleteWorld(Direction world) {
         deleteObjectsInLayer(world, TOP_TERRAIN_LAYER);
         deleteObjectsInLayer(world, BOTTOM_TERRAIN_LAYER);
@@ -215,6 +246,9 @@ public class PepseGameManager extends GameManager {
         deleteObjectsInLayer(world, MONSTERS_LAYER);
     }
 
+    /**
+     * Creates the avatar
+     */
     private void createAvatar(UserInputListener inputListener, ImageReader imageReader) {
         float initialX = windowDimensions.x() / 2f;
         Vector2 initialPosition = new Vector2(
@@ -243,20 +277,17 @@ public class PepseGameManager extends GameManager {
         cloudsCreator(imageReader);
     }
 
-    private void treesCreator(int start, int end) {
-        tree.createInRange(start, end);
-//        for (int curX = start; curX <= end; curX += 2 * Block.SIZE) {
-//            if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
-//                float curY = terrain.groundHeightAt(curX);
-//                Vector2 position = new Vector2(curX, curY - Block.SIZE);
-//                Tree.Create(gameObjects(), position, TRUNK_LAYER, LEAVES_LAYER, RANDOM_SEED);
-//            }
-//        }
-    }
-
+    /**
+     * The main game loop
+     *
+     * @param args The user arguments
+     */
     public static void main(String[] args) {
         new PepseGameManager(WINDOWS_NAME, new Vector2(BOARD_WIDTH, BOARD_HEIGHT)).run();
     }
 
+    /**
+     * This enum represent a direction - in this context it represents the side of a world
+     */
     private enum Direction {right, left}
 }

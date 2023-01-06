@@ -14,6 +14,7 @@ import java.util.Random;
 public class MonsterFactory {
     private static final Vector2 PIG_SIZE = new Vector2(80, 70);
     private static final Vector2 SNAIL_SIZE = new Vector2(80, 70);
+    private static final float EPSILON = 30;
     private static final float TIME_BETWEEN_CLIPS = 0.1f;
     private static final String ASSETS_PIG_PIG_LEFT_1 = "assets/pig/pig_left_1.png";
     private static final String ASSETS_PIG_PIG_LEFT_2 = "assets/pig/pig_left_2.png";
@@ -79,7 +80,7 @@ public class MonsterFactory {
         AnimationRenderable rightImg = new AnimationRenderable(new Renderable[]{rightImg1, rightImg2,
                 rightImg3}, TIME_BETWEEN_CLIPS);
 
-        Vector2 pigPosition = new Vector2(topLeftCorner.x(), topLeftCorner.y() - PIG_SIZE.y());
+        Vector2 pigPosition = new Vector2(topLeftCorner.x(), topLeftCorner.y() - PIG_SIZE.y() - EPSILON);
         return new Monster(pigPosition, PIG_SIZE, leftImg, rightImg);
     }
 
@@ -102,20 +103,20 @@ public class MonsterFactory {
         AnimationRenderable rightImg = new AnimationRenderable(new Renderable[]{rightImg1, rightImg2,
                 rightImg3}, TIME_BETWEEN_CLIPS);
 
-        Vector2 snailPosition = new Vector2(topLeftCorner.x(), topLeftCorner.y() - SNAIL_SIZE.y());
+        Vector2 snailPosition = new Vector2(topLeftCorner.x(), topLeftCorner.y() - SNAIL_SIZE.y() - EPSILON);
         return new Monster(snailPosition, SNAIL_SIZE, leftImg, rightImg);
     }
 
     /**
      * Creates a radom new monster
      *
-     * @param x             The x position to make the monster
-     * @param topLeftCor    The top left corner to draw the monster
-     * @return              A new random Monster
+     * @param x          The x position to make the monster
+     * @param topLeftCor The top left corner to draw the monster
+     * @return A new random Monster
      */
     public Monster createRandomMonster(int x, Vector2 topLeftCor) {
         Monsters[] monsters = Monsters.values();
-        Monsters monster = monsters[new Random(Objects.hash(seed, x, topLeftCor)).nextInt(monsters.length)];
+        Monsters monster = monsters[new Random(Objects.hash(seed, x)).nextInt(monsters.length)];
         return create(monster, topLeftCor);
     }
 

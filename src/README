@@ -1,7 +1,17 @@
 nir.balouka
 yoniankry
 
-1) Differences between the uml_before and the uml_after:
+1) Main differences between the uml_before and the uml_after:
+    (*) At first we did not know which bonuses we will implement and that is why the uml_before doesn't
+        contain most of the bonuses bonuses.
+    (*) At first we thought we could use the Block in order to make the leaves and that is why we thought
+        that the Trees package can contain only one class "Tree". When we started to implement the trees, we
+        discovered that the leaves can not be implemented with Blocks so we made a new Leaf class.
+    (*) When we started to implement, we noticed that in few classes we don't use their constructors so we
+        decided to make them private (Sun, SunHalo, Sky, Night, Cloud and Avatar).
+    (*) At first we did not know how we will make the infinite world, that is why the uml_before does not
+        contain all the functions that do that (createWorld, deleteWorld, deleteObjectInLayer)
+
 
 
 2) Endless world explanation:

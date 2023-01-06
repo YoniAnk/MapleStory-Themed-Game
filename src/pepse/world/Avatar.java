@@ -18,7 +18,7 @@ import pepse.world.trees.Leaf;
 import java.awt.event.KeyEvent;
 
 public class Avatar extends GameObject {
-    private static final int MASS = 200;
+    private static final int MASS = 20;
     private static final int MOVEMENT_SPEED = 250;
     private static final int MAX_ENERGY = 100;
     private static final int GRAVITY = 500;
@@ -79,7 +79,6 @@ public class Avatar extends GameObject {
                    UserInputListener inputListener, ImageReader imageReader) {
         super(topLeftCorner, dimensions, null);
         this.physics().preventIntersectionsFromDirection(Vector2.ZERO);
-        this.physics().setMass(MASS);
         this.transform().setAccelerationY(GRAVITY);
         this.gameObjects = gameObjects;
         this.inputListener = inputListener;

@@ -20,15 +20,20 @@ public class Cloud {
     private static final String CLOUD_PATH = "assets/cloude.png";
     private static final int XTRAVEL_RATIO = 3;
 
+    /**
+     * A private constructor to prevent creating a Cloud instance
+     */
+    private Cloud() {
+    }
+
     public static GameObject create(GameObjectCollection gameObjects, int layer, Vector2 windowDimensions,
                                     float cycleLength, ImageReader imageReader, Vector2 topLeftCorner,
-                                    float startX)
-    {
-        Renderable cloudRenderable = imageReader.readImage(CLOUD_PATH,true);
-        GameObject cloud = new GameObject(topLeftCorner,new Vector2(CLOUD_WIDTH, CLOUD_HEIGHT),
+                                    float startX) {
+        Renderable cloudRenderable = imageReader.readImage(CLOUD_PATH, true);
+        GameObject cloud = new GameObject(topLeftCorner, new Vector2(CLOUD_WIDTH, CLOUD_HEIGHT),
                 cloudRenderable);
 
-        gameObjects.addGameObject(cloud,layer);
+        gameObjects.addGameObject(cloud, layer);
         cloud.setTag(CLOUD_TAG);
 
         cloud.physics().preventIntersectionsFromDirection(Vector2.ZERO);
@@ -39,7 +44,7 @@ public class Cloud {
         };
 
         new Transition<>(cloud, mover,
-                startX, startX + XTRAVEL_RATIO *windowDimensions.x(), Transition.LINEAR_INTERPOLATOR_FLOAT,
+                startX, startX + XTRAVEL_RATIO * windowDimensions.x(), Transition.LINEAR_INTERPOLATOR_FLOAT,
                 cycleLength, Transition.TransitionType.TRANSITION_BACK_AND_FORTH, null);
 
         return cloud;

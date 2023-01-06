@@ -1,0 +1,158 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class Avatar {
+  - Avatar(GameObjectCollection, Vector2, Vector2, UserInputListener, ImageReader): 
+  - energy: Counter
+  + onCollisionEnter(GameObject, Collision): void
+  + update(float): void
+  + create(GameObjectCollection, int, Vector2, UserInputListener, ImageReader): Avatar
+  - applyWind(): void
+  - stopRotating(): void
+  - manageFreeFall(): void
+  - createParachute(): GameObject
+  - createWalkAnimation(ImageReader, State): AnimationRenderable?
+  - updateEnergy(): void
+  - updateRenderable(): void
+   energy: Counter
+   jumpState: boolean
+   flightState: boolean
+}
+class Block {
+  + Block(Vector2, Renderable): 
+}
+class Cloud {
+  + Cloud(): 
+  + create(GameObjectCollection, int, Vector2, float, ImageReader, Vector2, float): GameObject
+}
+class ColorSupplier {
+  + ColorSupplier(): 
+  + approximateColor(Color, int): Color
+  + approximateColor(Color): Color
+  - randomChannelInRange(int, int): int
+}
+enum Direction << enumeration >> {
+  + Direction(): 
+  + values(): Direction[]
+  + valueOf(String): Direction
+}
+class Leaf {
+  + Leaf(Vector2, Renderable): 
+  + onCollisionEnter(GameObject, Collision): void
+  - applyWind(): void
+  - applyLeafDropper(): void
+  - returnToLife(): void
+  - stopLeaf(): void
+  - startFalling(): void
+}
+class Monster {
+  + Monster(Vector2, Vector2, Renderable, Renderable): 
+  + onCollisionEnter(GameObject, Collision): void
+  - updateRenderable(): void
+  - applyMovement(): void
+}
+class MonsterFactory {
+  + MonsterFactory(ImageReader, int): 
+  + create(Monsters, Vector2): Monster
+  + createRandomMonster(int, Vector2): Monster
+  - createSnail(Vector2): Monster
+  - createPig(Vector2): Monster
+}
+enum Monsters << enumeration >> {
+  + Monsters(): 
+  + valueOf(String): Monsters
+  + values(): Monsters[]
+}
+class Night {
+  + Night(): 
+  + create(GameObjectCollection, int, Vector2, float): GameObject
+}
+class NoiseGenerator {
+  + NoiseGenerator(double): 
+  + NoiseGenerator(): 
+  - seed: double
+  + noise(double, double, double): double
+  + smoothNoise(double, double, double): double
+  - fade(double): double
+  - lerp(double, double, double): double
+  - init(): void
+  - grad(int, double, double, double): double
+   seed: double
+}
+class NumericEnergyCounter {
+  + NumericEnergyCounter(Vector2, Vector2, Counter): 
+  + update(float): void
+}
+class PepseGameManager {
+  + PepseGameManager(String, Vector2): 
+  + main(String[]): void
+  + initializeGame(ImageReader, SoundReader, UserInputListener, WindowController): void
+  + update(float): void
+  - monstersCreator(int, int, int): void
+  - skyCreator(ImageReader): void
+  - createAvatar(UserInputListener, ImageReader): void
+  - applyLayersCollisions(): void
+  - deleteWorld(Direction): void
+  - createWorld(Direction): void
+  - terrainCreator(int, int): void
+  - createSingleMonster(int, int): void
+  - treesCreator(int, int): void
+  - cloudsCreator(ImageReader): void
+  - deleteObjectsInLayer(Direction, int): void
+  - numericEnergyCreator(): void
+}
+class Sky {
+  + Sky(): 
+  + create(GameObjectCollection, Vector2, int): GameObject
+}
+enum State << enumeration >> {
+  + State(): 
+  + valueOf(String): State
+  + values(): State[]
+}
+class Sun {
+  + Sun(): 
+  + create(GameObjectCollection, int, Vector2, float): GameObject
+}
+class SunHalo {
+  + SunHalo(): 
+  + create(GameObjectCollection, int, GameObject, Color): GameObject
+}
+interface SunMover << interface >> {
+  + rotate(float): void
+}
+class Terrain {
+  + Terrain(GameObjectCollection, int, Vector2, int): 
+  + groundHeightAt(float): float
+  + createInRange(int, int): void
+}
+class Tree {
+  + Tree(): 
+  + getRandomTruckHeight(int, int): int
+  + shouldPlantTree(int, int): boolean
+  + Create(GameObjectCollection, Vector2, int, int, int): void
+  - generateTrunk(GameObjectCollection, Vector2, int, float): void
+  - generateLeaves(GameObjectCollection, Vector2, int, float): void
+}
+
+Avatar               "1" *-[#595959,plain]-> "state\n1" State                
+Direction             +-[#820000,plain]-  PepseGameManager     
+MonsterFactory        -[#595959,dashed]->  Monster              : "«create»"
+PepseGameManager     "1" *-[#595959,plain]-> "avatar\n1" Avatar               
+PepseGameManager      -[#595959,dashed]->  MonsterFactory       : "«create»"
+PepseGameManager     "1" *-[#595959,plain]-> "monsterFactory\n1" MonsterFactory       
+PepseGameManager     "1" *-[#595959,plain]-> "energyCounter\n1" NumericEnergyCounter 
+PepseGameManager      -[#595959,dashed]->  NumericEnergyCounter : "«create»"
+PepseGameManager     "1" *-[#595959,plain]-> "terrain\n1" Terrain              
+PepseGameManager      -[#595959,dashed]->  Terrain              : "«create»"
+State                 +-[#820000,plain]-  Avatar               
+SunMover              +-[#820000,plain]-  Sun                  
+Terrain               -[#595959,dashed]->  Block                : "«create»"
+Terrain               -[#595959,dashed]->  NoiseGenerator       : "«create»"
+Terrain              "1" *-[#595959,plain]-> "noiseGenerator\n1" NoiseGenerator       
+Tree                  -[#595959,dashed]->  Block                : "«create»"
+Tree                  -[#595959,dashed]->  Leaf                 : "«create»"
+@enduml

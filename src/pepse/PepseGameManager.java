@@ -74,6 +74,7 @@ public class PepseGameManager extends GameManager {
     private Avatar avatar;
     private NumericEnergyCounter energyCounter;
     private MonsterFactory monsterFactory;
+    private Tree tree;
 
     /**
      * The constructor of Pepse Game Manager
@@ -108,6 +109,7 @@ public class PepseGameManager extends GameManager {
 
         skyCreator(imageReader);
         terrainCreator(worldLeftEnd, worldRightEnd);
+        tree = new Tree(gameObjects(), RANDOM_SEED, terrain, LEAVES_LAYER, TRUNK_LAYER);
         treesCreator(worldLeftEnd + EPSILON * Block.SIZE, worldRightEnd - EPSILON * Block.SIZE);
         createAvatar(inputListener, imageReader);
         numericEnergyCreator();
@@ -242,13 +244,14 @@ public class PepseGameManager extends GameManager {
     }
 
     private void treesCreator(int start, int end) {
-        for (int curX = start; curX <= end; curX += 2 * Block.SIZE) {
-            if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
-                float curY = terrain.groundHeightAt(curX);
-                Vector2 position = new Vector2(curX, curY - Block.SIZE);
-                Tree.Create(gameObjects(), position, TRUNK_LAYER, LEAVES_LAYER, RANDOM_SEED);
-            }
-        }
+        tree.createInRange(start, end);
+//        for (int curX = start; curX <= end; curX += 2 * Block.SIZE) {
+//            if (Tree.shouldPlantTree(RANDOM_SEED, curX)) {
+//                float curY = terrain.groundHeightAt(curX);
+//                Vector2 position = new Vector2(curX, curY - Block.SIZE);
+//                Tree.Create(gameObjects(), position, TRUNK_LAYER, LEAVES_LAYER, RANDOM_SEED);
+//            }
+//        }
     }
 
     public static void main(String[] args) {

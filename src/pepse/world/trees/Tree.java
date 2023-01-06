@@ -1,13 +1,12 @@
 package pepse.world.trees;
 
 import danogl.collisions.GameObjectCollection;
-import danogl.components.ScheduledTask;
-import danogl.components.Transition;
 import danogl.gui.rendering.RectangleRenderable;
 import danogl.gui.rendering.Renderable;
 import danogl.util.Vector2;
 import pepse.util.ColorSupplier;
 import pepse.world.Block;
+import pepse.world.Terrain;
 
 import java.awt.*;
 import java.util.Objects;
@@ -31,25 +30,45 @@ public class Tree {
 
     /*********** Leaves ***********/
     public static final Color BASE_LEAF_COLOR = new Color(50, 200, 30);
+
+    private final GameObjectCollection gameObjects;
     private static final int LEAVES_SQUARE_SIZE = Block.SIZE * 5;
+    private final int random_seed, leavesLayer, trunkLayer;
+    private final Terrain terrain;
 
 
-    public static void Create(GameObjectCollection gameObjects, Vector2 groundPos, int trunkLayer,
-                              int leavesLayer, int seed) {
+    public Tree(GameObjectCollection gameObjects, int random_seed, Terrain terrain, int leavesLayer,
+                int trunkLayer) {
+        this.gameObjects = gameObjects;
+        this.random_seed = random_seed;
+        this.leavesLayer = leavesLayer;
+        this.trunkLayer = trunkLayer;
+        this.terrain = terrain;
+    }
+
+    public void createInRange(int minX, int maxX) {
+        for (int curX = minX; curX <= maxX; curX += 2 * Block.SIZE) {
+            if (Tree.shouldPlantTree(random_seed, curX)) {
+                float curY = terrain.groundHeightAt(curX);
+                CreateTree(new Vector2(curX, curY - Block.SIZE), trunkLayer, leavesLayer, random_seed);
+            }
+        }
+    }
+
+    private void CreateTree(Vector2 groundPos, int trunkLayer, int leavesLayer, int seed) {
         float trunkHeight = getRandomTruckHeight(seed, (int) groundPos.x());
-        generateTrunk(gameObjects, groundPos, trunkLayer, trunkHeight);
-        generateLeaves(gameObjects, groundPos, leavesLayer, trunkHeight);
+        generateTrunk(groundPos, trunkLayer, trunkHeight);
+        generateLeaves(groundPos, leavesLayer, trunkHeight);
     }
 
     /**
      * Generate the trunk of a tree
      *
-     * @param gameObjects the gameObjects collection to add the trunk
      * @param groundPos   the ground position to make the trunk
      * @param trunkLayer  the layer to put the trunk in
      * @param trunkHeight the height of the trunk
      */
-    private static void generateTrunk(GameObjectCollection gameObjects, Vector2 groundPos, int trunkLayer, float trunkHeight) {
+    private void generateTrunk(Vector2 groundPos, int trunkLayer, float trunkHeight) {
         for (float curY = groundPos.y(); curY >= groundPos.y() - trunkHeight; curY -= Block.SIZE) {
             Renderable img = new RectangleRenderable(ColorSupplier.approximateColor(BASE_TRUNK_COLOR));
             Block trunk = new Block(new Vector2(groundPos.x(), curY), img);
@@ -61,12 +80,11 @@ public class Tree {
     /**
      * Generate the leaves around the top of the trunk of the tree
      *
-     * @param gameObjects the gameObjects collection to add the trunk
      * @param groundPos   the ground position to make the trunk
      * @param leavesLayer the layer to put the leaves in
      * @param trunkHeight the height of the trunk
      */
-    private static void generateLeaves(GameObjectCollection gameObjects, Vector2 groundPos, int leavesLayer, float trunkHeight) {
+    private void generateLeaves(Vector2 groundPos, int leavesLayer, float trunkHeight) {
         Vector2 center = groundPos.subtract(new Vector2(-Block.SIZE / 2f, trunkHeight));
         float startX = center.x() - LEAVES_SQUARE_SIZE / 2f, endX = center.x() + LEAVES_SQUARE_SIZE / 2f;
         float startY = center.y() - LEAVES_SQUARE_SIZE / 2f, endY = center.y() + LEAVES_SQUARE_SIZE / 2f;
@@ -98,7 +116,7 @@ public class Tree {
      * @param x    the x position of the tree
      * @return the height of the tree
      */
-    public static int getRandomTruckHeight(int seed, int x) {
+    private static int getRandomTruckHeight(int seed, int x) {
         return new Random(Objects.hash(seed, x)).nextInt(MAXIMUM_TRUNK_HEIGHT - MINIMUM_TRUNK_HEIGHT) +
                 MINIMUM_TRUNK_HEIGHT;
     }

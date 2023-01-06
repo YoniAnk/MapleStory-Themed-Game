@@ -22,6 +22,11 @@ public class Night {
     private static final String NIGHT_TAG = "night";
 
     /**
+     * A private constructor to prevent creating a Night instance
+     */
+    private Night(){}
+
+    /**
      * Creates a new night object and adds it to the specified game object collection.
      *
      * @param gameObjects the game object collection to add the night object to

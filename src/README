@@ -55,6 +55,9 @@ yoniankri
        PepseGameManager, and if it will be inside a specific factory which handles exactly that - it will make
        it much more easy to add new monsters types.
 
+   (*) how to make the game work faster? we decided to make only the top 2 layers of the terrain able to
+       collide with the other objects in the game.
+
 
 5) Bonuses (MapleStory motif):
    (*) The avatar is the most famous character in the MapleStory game which is our favorite childhood game:

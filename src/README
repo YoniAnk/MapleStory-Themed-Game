@@ -56,7 +56,8 @@ yoniankri
        it much more easy to add new monsters types.
 
    (*) how to make the game work faster? we decided to make only the top 2 layers of the terrain able to
-       collide with the other objects in the game.
+       collide with the other objects in the game, and the other layers are in a different layer which no
+       collision is defined for it.
 
 
 5) Bonuses (MapleStory motif):
